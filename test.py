@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from z3 import Bool, And, Not, Or, Xor, If, EnumSort, Implies, Consts
+from z3 import *
 from pdr import PDR
 from bmc import BMC
 
@@ -206,25 +206,25 @@ def Mutual():
     primes = [x_] + procs_
     init = And(x, *[proc == I for proc in procs])
 
+    def exclusive(i):
+        return And(*[procs_[j] == procs[j] for j in range(n) if j != i])
+
     # try: a[i] = I -> a[i]' = T
-    try_rules = [And(Implies(p == I, p_ == T), x_ == x) for p, p_ in zip(procs, procs_)]
+    try_rules = [And(p == I, p_ == T, x_ == x, exclusive(i)) for i, (p, p_) in enumerate(zip(procs, procs_))]
 
     # crit: (a[i] = T and x = true) -> a[i]' = C and x' = false
-    crit_rules = [Implies(And(p == T, x), And(p_ == C, Not(x_))) for p, p_ in zip(procs, procs_)]
+    crit_rules = [And(p == T, x, p_ == C, Not(x_), exclusive(i)) for i, (p, p_) in enumerate(zip(procs, procs_))]
 
     # exit: a[i] = C -> a[i]' = E
-    exit_rules = [And(Implies(p == C, p_ == E), x_ == x) for p, p_ in zip(procs, procs_)]
+    exit_rules = [And(p == C, p_ == E, x_ == x, exclusive(i)) for i, (p, p_) in enumerate(zip(procs, procs_))]
 
     # idle: a[i] = E -> a[i]' = I and x' = true
-    idle_rules = [Implies(p == E, And(p_ == I, x_)) for p, p_ in zip(procs, procs_)]
+    idle_rules = [And(p == E, p_ == I, x_, exclusive(i)) for i, (p, p_) in enumerate(zip(procs, procs_))]
 
-    trans = And(*(try_rules + crit_rules + exit_rules + idle_rules))
+    trans = Or(*(try_rules + crit_rules + exit_rules + idle_rules))
 
-    post = Or(*[
-        And(procs[i] == C,
-            *[Not(procs[j] == C) for j in range(n) if j != i]
-            ) for i in range(n)
-    ], And(*[Not(procs[i] == C) for i in range(n)]))
+    post = Or(*[And(procs[i] == C, *[Not(procs[j] == C) for j in range(n) if j != i]) for i in range(n)],
+              And(*[Not(procs[i] == C) for i in range(n)]))
 
     return variables, primes, init, trans, post
 
@@ -248,13 +248,14 @@ if __name__ == "__main__":
     parser.add_argument('-ls', action='store_true')
     parser.add_argument('testname', type=str, help='The name of the test to run', default=None, nargs='?')
     args = parser.parse_args()
+    set_option(max_depth=999999, max_lines=999999)
     if args.ls:
         listTests()
     elif args.testname is not None:
         name = args.testname
         print("=========== Running test", name, "===========")
         # solver = PDR(*tests[name]())
-        solver = BMC(*tests[name]())
+        solver = PDR(*tests[name]())
         solver.run()
     else:
         for name in tests:
