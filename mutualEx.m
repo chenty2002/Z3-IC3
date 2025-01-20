@@ -1,64 +1,39 @@
+const clientNUMS : 5;
+type state : enum{I, T, C, E};
 
-const
-    NODENUMS : 4;
+     client: 1..clientNUMS;
 
-type
-     state : enum{I, T, C, E};
-     NODE: scalarset(NODENUMS);
+var n : array [client] of state;
 
+    x : boolean; 
+    
+ruleset i : client do
+rule "Try" n[i] = I ==> begin
+      n[i] := T;endrule; 
 
-var
-    n : array [NODE] of state;
+rule "Crit"
+      n[i] = T& x = true ==>begin
+      n[i] := C; x := false; endrule;
 
-    x : boolean;
+rule "Exit"
+      n[i] = C ==>begin
+      n[i] := E;endrule;
+      
+ 
+rule "Idle"
+      n[i] = E ==> begin n[i] := I;
+      x := true;endrule;
+endruleset;
 
-
-startstate "Init"
+startstate
 begin
-for i: NODE do
-    n[i] := I;
-endfor;
-x := true;
+ for i: client do
+    n[i] := I; 
+  endfor;
+  x := true;
 endstartstate;
 
-
-ruleset i : NODE
-do rule "Try"
-  n[i] = I
-==>
-begin
-  n[i] := T;
-endrule;endruleset;
-
-
-ruleset i : NODE
-do rule "Crit"
-  n[i] = T & x = true
-==>
-begin
-  n[i] := C;
-  x := false;
-endrule;endruleset;
-
-ruleset i : NODE
-do rule "Exit"
-  n[i] = C
-==>
-begin
-  n[i] := E;
-endrule;endruleset;
-
-ruleset i : NODE
-do rule "Idle"
-  n[i] = E
-==>
-begin
-  n[i] := I;
-  x := true;
-
-endrule;endruleset;
-
-
---True
-invariant "test_1"
-  !(n[2] = C & x = true & n[1] = T);
+ruleset i:client; j: client do
+invariant "coherence"
+  i != j -> (n[i] = C -> n[j] != C);
+endruleset;

@@ -1,0 +1,98 @@
+?const_decl: CNAME ":" INT
+?consts: "const" (const_decl ";")*                    -> consts
+
+
+
+?type_constr: CNAME                                   -> var_type
+    | (INT | CNAME) ".."  (INT | CNAME)               -> range_type
+    | "boolean"                                       -> boolean_type
+    | "scalarset" "(" CNAME ")"                       -> scalarset_type
+    | "union" "{" type_constr ("," type_constr)* "}"  -> union_type
+    | "enum" "{" CNAME ("," CNAME)* "}"               -> enum_type
+    | "array" "[" type_constr "]" "of" type_constr    -> array_type
+    | "record" (type_decl ";")* "end"                 -> record_type
+
+?type_decl: CNAME ":" type_constr
+?types: "type" (type_decl ";")*                       -> types
+
+?var_decl: CNAME ":" type_constr
+?vars: "var" (var_decl ";")*                          -> vars
+
+?atom_expr: CNAME                                     -> unknown_expr
+    | INT                                             -> int_expr
+    | atom_expr "." CNAME                             -> field_name
+    | atom_expr "[" expr "]"                          -> array_index
+    | "forall" var_decl "do" expr ("end" | "endforall")               -> forall_expr
+    | "exists" var_decl "do" expr "end"               -> exists_expr
+    | "(" expr ")"
+
+?neg_expr: "!" atom_expr                              -> neg_expr
+    | atom_expr
+
+?eq_expr: neg_expr "=" neg_expr                       -> eq_expr
+    | neg_expr "!=" neg_expr                          -> ineq_expr
+    | neg_expr
+
+?and_expr: eq_expr "&" and_expr
+    | eq_expr
+
+?or_expr: and_expr "|" or_expr
+    | and_expr
+
+?imp_expr: or_expr "->" imp_expr
+    | or_expr
+
+?add_expr: imp_expr "+" add_expr
+    | imp_expr
+
+?sub_expr: add_expr "-" sub_expr
+    | add_expr
+
+?mul_expr: sub_expr "*" mul_expr
+    | sub_expr
+
+?div_expr: mul_expr "/" div_expr
+    | mul_expr
+
+?mod_expr: div_expr "%" mod_expr
+    | div_expr
+
+?smaller_expr: mod_expr "<=" smaller_expr
+    | mod_expr
+
+?larger_expr: smaller_expr ">" larger_expr
+    | smaller_expr
+
+
+?expr: larger_expr
+
+?cmd: "undefine" atom_expr                            -> undefine_cmd
+    | atom_expr ":=" expr                             -> assign_cmd
+    | "for" var_decl "do" cmds ("end" | "endfor")     -> forall_cmd
+    | "if" expr "then" cmds ("elsif" expr "then" cmds)* ("else" cmds)? ("end" | "endif")  -> if_cmd
+
+?cmds: (cmd ";")*                                     -> cmds
+
+?startstate: "startstate" (ESCAPED_STRING)? ("begin")? cmds "endstartstate" ";"
+
+?var_decls: var_decl (";" var_decl)*                  -> var_decls
+
+?rule: "rule" ESCAPED_STRING expr "==>" (vars)?  "begin" cmds "endrule" ";"
+
+?ruleset: "ruleset" var_decls "do" (prot_decl)* "endruleset" ";"
+
+?invariant: "invariant" ESCAPED_STRING expr ";"
+
+?prot_decl: rule | ruleset | invariant | startstate
+
+?protocol: consts types vars (prot_decl)*
+
+COMMENT: "--" /[^\n]*/ NEWLINE
+
+%import common.NEWLINE
+%import common.CNAME
+%import common.WS
+%import common.INT
+%import common.ESCAPED_STRING
+%ignore WS
+%ignore COMMENT
