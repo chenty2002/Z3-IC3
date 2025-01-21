@@ -73,7 +73,7 @@
 
 ?cmds: (cmd ";")*                                     -> cmds
 
-?startstate: "startstate" (ESCAPED_STRING)? ("begin")? cmds "endstartstate" ";"
+?startstate: "startstate" (ESCAPED_STRING)? ("begin")? cmds "endstartstate" ";"   -> startstate
 
 ?var_decls: var_decl (";" var_decl)*                  -> var_decls
 

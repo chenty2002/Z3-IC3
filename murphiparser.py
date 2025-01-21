@@ -152,4 +152,5 @@ def parse_file(filename):
 if __name__ == '__main__':
     file_name = "mutualEx.m"
     # prot = parse_file(parse_path+parse_name+'.m', ivyselect, smvSelect)
-    print(parse_file(file_name))
+    lex_tree = parse_file(file_name)
+    print(lex_tree)

@@ -703,8 +703,8 @@ class StartState(ProtDecl):
         super().__init__(True)
         assert len(args) < 3
         if len(args) == 1:
-            self.name = '__startstate__'
-            self.cmds = args
+            self.name = '__init__'
+            self.cmds = args[0]
         else:
             self.name, self.cmds = args
 
@@ -715,10 +715,11 @@ class StartState(ProtDecl):
         return res
 
     def __repr__(self):
-        return f'StartState({self.name}, {self.cmds})'
+        cmds_repr = ''.join(indent(str(cmd), 2) + '\n' for cmd in self.cmds)
+        return f'StartState({self.name}, {cmds_repr})'
 
     def elaborate(self, prot, bound_vars):
-        return StartState([self.name] + [cmd.elaborate(prot, bound_vars) for cmd in self.cmds])
+        return StartState([self.name, [cmd.elaborate(prot, bound_vars) for cmd in self.cmds]])
 
 
 class MurphiRule(ProtDecl):
@@ -751,22 +752,17 @@ class MurphiRule(ProtDecl):
         return isinstance(other, MurphiRule) and self.name == other.name and self.cond == other.cond and self.cmds == other.cmds
 
     def elaborate(self, prot, bound_vars):
-        new_args = []
+        new_args = [
+            self.name,
+            self.cond.elaborate(prot, bound_vars),
+            [cmd.elaborate(prot, bound_vars) for cmd in self.cmds]
+        ]
         if len(self.args) > 3:
             for var, typ in self.rule_var_map.items():
                 bound_vars[var] = typ
-            new_args.append(self.name)
-            new_args.append(self.cond.elaborate(prot, bound_vars))
-            new_args.append(self.rule_vars)
-            new_args.append([cmd.elaborate(prot, bound_vars) for cmd in self.cmds])
-
+            new_args.insert(2, self.rule_vars)
             for var in self.rule_var_map:
                 del bound_vars[var]
-        elif len(self.args) == 3:
-            new_args.append(self.name)
-            new_args.append(self.cond.elaborate(prot, bound_vars))
-            new_args.append([cmd.elaborate(prot, bound_vars) for cmd in self.cmds])
-
         return MurphiRule(new_args)
 
     def addSpecialGuard(self, f):
@@ -858,7 +854,7 @@ class MurphiProtocol:
 
         # Elaboration
         self.decls = [decl.elaborate(self, dict()) for decl in self.decls]
-        start_states = list(filter(lambda decl: decl.is_startstate, decls))
+        start_states = list(filter(lambda decl: decl.is_startstate, self.decls))
         assert len(start_states) == 1
         self.start_state = start_states[0]
 
@@ -875,6 +871,8 @@ class MurphiProtocol:
                         self.rule_map[rule.name] = rule
                     elif isinstance(rule, MurphiInvariant):
                         self.inv_map[rule.name] = rule
+            elif isinstance(decl, StartState):
+                pass
             elif isinstance(decl, MurphiInvariant):
                 self.inv_map[decl.name] = decl
             else:
