@@ -1,8 +1,4 @@
-#!/usr/bin/python
-
-# Implementation of the PDR algorithm by Peter Den Hartog. Apr 28, 2016
-
-from z3 import Solver, substitute, simplify, And, Not, sat, unsat
+from z3 import *
 
 
 # a cube is a conjunction of literals associated with a given frame (t) in the trace
@@ -20,6 +16,9 @@ class Cube(object):
     def __repr__(self):
         return str(self.frame_index) + ": " + str(sorted(self.cubeLiterals, key=str))
 
+    def __str__(self):
+        return f'{sorted(self.cubeLiterals, key=str)} of frame {self.frame_index}'
+
 
 class PDR(object):
     def __init__(self, literals, primes, init, trans, post):
@@ -35,13 +34,17 @@ class PDR(object):
         self.frames = list()
         self.frames.append(self.init)
 
+        iteration = 1
         while True:
+            print(f'\n\nIteration {iteration}')
+            iteration += 1
             c = self.getBadCube()
             if c is not None:
                 # print "Found bad cube:", c
                 # we have a bad cube, which we will try to block 
                 # if the cube is blocked from the previous frame 
                 # we can block it from all previous frames
+                print(f"Found bad cube {c}, blocking")
                 trace = self.block_cube_recursive(c)
                 if trace is not None:
                     print("Found trace ending in bad state:")
@@ -54,7 +57,7 @@ class PDR(object):
                 if inv is not None:
                     print("Found inductive invariant:", simplify(inv))
                     return True
-                print("Did not find invariant, adding frame", len(self.frames))
+                print(f"Did not find invariant, adding frame {len(self.frames)}: True")
                 self.frames.append(True)
 
     # Check all images in frames to see if one is inductive
@@ -88,6 +91,10 @@ class PDR(object):
                 for i in range(1, s.frame_index + 1):
                     # if not self.isBlocked(s, i):
                     self.frames[i] = simplify(And(self.frames[i], Not(s.cube())))
+                print(f"Blocked cube {s} in all previous frames")
+                print("Frames:")
+                for i, f in enumerate(self.frames):
+                    print(f"Frame {i}: {f}")
             else:
                 # Cube 's' was not blocked by image of predecessor
                 # it will stay on the stack, and z (the model which allowed transition to s) will be added on top

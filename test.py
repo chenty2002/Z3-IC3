@@ -195,7 +195,7 @@ def EvenIncrementer():
 
 
 def Mutual():
-    n = 4
+    n = 2
     states, (T, I, C, E) = EnumSort('State', ['T', 'I', 'C', 'E'])
     procs = Consts(' '.join(['a' + str(i) for i in range(n)]), states)
     procs_ = Consts(' '.join(['a' + str(i) + '\'' for i in range(n)]), states)
@@ -242,13 +242,14 @@ def listTests():
 
 
 if __name__ == "__main__":
+    # solver = PDR(*tests['Mutual']())
+    # solver.run()
     import argparse
 
     parser = argparse.ArgumentParser(description="Run tests examples on the PDR algorithm")
     parser.add_argument('-ls', action='store_true')
     parser.add_argument('testname', type=str, help='The name of the test to run', default=None, nargs='?')
     args = parser.parse_args()
-    set_option(max_depth=999999, max_lines=999999)
     if args.ls:
         listTests()
     elif args.testname is not None:
