@@ -1,0 +1,1488 @@
+=========== Running test Mutual ===========
+
+
+Iteration 1
+Did not find invariant, adding frame 1: True
+
+
+Iteration 2
+Found bad cube [a0 == C, a1 == C] of frame 1, blocking
+Blocked cube [a0 == C, a1 == C] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: Not(And(a1 == C, a0 == C))
+
+
+Iteration 3
+Did not find invariant, adding frame 2: True
+
+
+Iteration 4
+Found bad cube [a0 == C, a1 == C] of frame 2, blocking
+Blocked cube [a0 == T, a1 == C, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 2: True
+Blocked cube [a0 == C, a1 == T, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 2: True
+Blocked cube [a0 == C, a1 == C] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 2: Not(And(a1 == C, a0 == C))
+
+
+Iteration 5
+Did not find invariant, adding frame 3: True
+
+
+Iteration 6
+Found bad cube [a0 == C, a1 == C] of frame 3, blocking
+Blocked cube [a0 == C, a1 == I, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 2: Not(And(a1 == C, a0 == C))
+Frame 3: True
+Blocked cube [a0 == C, a1 == T, x == True] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 3: True
+Blocked cube [a0 == I, a1 == C, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 3: True
+Blocked cube [a0 == T, a1 == C, x == True] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 3: True
+Blocked cube [a0 == C, a1 == C] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 3: Not(And(a1 == C, a0 == C))
+
+
+Iteration 7
+Did not find invariant, adding frame 4: True
+
+
+Iteration 8
+Found bad cube [a0 == C, a1 == C] of frame 4, blocking
+Blocked cube [a0 == E, a1 == C] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 3: Not(And(a1 == C, a0 == C))
+Frame 4: True
+Blocked cube [a0 == I, a1 == C, x == True] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 3: Not(And(a1 == C, a0 == C))
+Frame 4: True
+Blocked cube [a0 == T, a1 == C, x == True] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 4: True
+Blocked cube [a0 == C, a1 == E] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 4: True
+Blocked cube [a0 == C, a1 == I, x == True] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 4: True
+Blocked cube [a0 == C, a1 == T, x == True] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 4: True
+Blocked cube [a0 == C, a1 == C] of frame 4 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 4: Not(And(a1 == C, a0 == C))
+
+
+Iteration 9
+Did not find invariant, adding frame 5: True
+
+
+Iteration 10
+Found bad cube [a0 == C, a1 == C] of frame 5, blocking
+Blocked cube [a0 == T, a1 == E, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 4: Not(And(a1 == C, a0 == C))
+Frame 5: True
+Blocked cube [a0 == C, a1 == E] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 4: Not(And(a1 == C, a0 == C))
+Frame 5: True
+Blocked cube [a0 == C, a1 == I, x == True] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 4: Not(And(a1 == C, a0 == C))
+Frame 5: True
+Blocked cube [a0 == C, a1 == T, x == True] of frame 4 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 5: True
+Blocked cube [a0 == E, a1 == T, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 5: True
+Blocked cube [a0 == E, a1 == C] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 5: True
+Blocked cube [a0 == I, a1 == C, x == True] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 5: True
+Blocked cube [a0 == T, a1 == C, x == True] of frame 4 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 5: True
+Blocked cube [a0 == C, a1 == C] of frame 5 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 5: Not(And(a1 == C, a0 == C))
+
+
+Iteration 11
+Did not find invariant, adding frame 6: True
+
+
+Iteration 12
+Found bad cube [a0 == C, a1 == C] of frame 6, blocking
+Blocked cube [a0 == I, a1 == E, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 5: Not(And(a1 == C, a0 == C))
+Frame 6: True
+Blocked cube [a0 == T, a1 == E, x == True] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 5: Not(And(a1 == C, a0 == C))
+Frame 6: True
+Blocked cube [a0 == C, a1 == E] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 5: Not(And(a1 == C, a0 == C))
+Frame 6: True
+Blocked cube [a0 == C, a1 == I, x == True] of frame 4 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 5: Not(And(a1 == C, a0 == C))
+Frame 6: True
+Blocked cube [a0 == C, a1 == T, x == True] of frame 5 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 6: True
+Blocked cube [a0 == E, a1 == I, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 6: True
+Blocked cube [a0 == E, a1 == T, x == True] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 6: True
+Blocked cube [a0 == E, a1 == C] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 6: True
+Blocked cube [a0 == I, a1 == C, x == True] of frame 4 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 6: True
+Blocked cube [a0 == T, a1 == C, x == True] of frame 5 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 6: True
+Blocked cube [a0 == C, a1 == C] of frame 6 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 6: Not(And(a1 == C, a0 == C))
+
+
+Iteration 13
+Did not find invariant, adding frame 7: True
+
+
+Iteration 14
+Found bad cube [a0 == C, a1 == C] of frame 7, blocking
+Blocked cube [a0 == E, a1 == E, x == False] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 6: Not(And(a1 == C, a0 == C))
+Frame 7: True
+Blocked cube [a0 == E, a1 == E, x == True] of frame 1 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 6: Not(And(a1 == C, a0 == C))
+Frame 7: True
+Blocked cube [a0 == E, a1 == I, x == True] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 6: Not(And(a1 == C, a0 == C))
+Frame 7: True
+Blocked cube [a0 == E, a1 == T, x == True] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 6: Not(And(a1 == C, a0 == C))
+Frame 7: True
+Blocked cube [a0 == E, a1 == C] of frame 4 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 6: Not(And(a1 == C, a0 == C))
+Frame 7: True
+Blocked cube [a0 == I, a1 == C, x == True] of frame 5 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 6: Not(And(a1 == C, a0 == C))
+Frame 7: True
+Blocked cube [a0 == T, a1 == C, x == True] of frame 6 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 6: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 7: True
+Blocked cube [a0 == I, a1 == E, x == True] of frame 2 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 6: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 7: True
+Blocked cube [a0 == T, a1 == E, x == True] of frame 3 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 6: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 7: True
+Blocked cube [a0 == C, a1 == E] of frame 4 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)))
+Frame 6: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 7: True
+Blocked cube [a0 == C, a1 == I, x == True] of frame 5 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 6: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)))
+Frame 7: True
+Blocked cube [a0 == C, a1 == T, x == True] of frame 6 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 6: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 7: True
+Blocked cube [a0 == C, a1 == C] of frame 7 in all previous frames
+Frames:
+Frame 0: And(x, a0 == I, a1 == I)
+Frame 1: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
+Frame 2: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)))
+Frame 3: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == T)))
+Frame 4: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)))
+Frame 5: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(x, a0 == C, a1 == I)))
+Frame 6: And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)))
+Frame 7: Not(And(a1 == C, a0 == C))
+
+
+Iteration 15
+Found inductive invariant:
+And(Not(And(a1 == C, a0 == C)),
+    Not(And(a1 == C, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == C)),
+    Not(And(x, a0 == C, a1 == I)),
+    Not(And(a0 == I, a1 == C, x)),
+    Not(And(a0 == E, a1 == C)),
+    Not(And(a0 == C, a1 == E)),
+    Not(And(a1 == E, x, a0 == T)),
+    Not(And(a1 == T, x, a0 == E)),
+    Not(And(a1 == E, x, a0 == I)),
+    Not(And(a1 == I, x, a0 == E)),
+    Not(And(a1 == E, Not(x), a0 == E)),
+    Not(And(a1 == E, x, a0 == E)))
