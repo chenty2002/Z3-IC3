@@ -410,7 +410,7 @@ class BaseExpr:
         self.z3_expr: Optional[DatatypeRef] = z3_expr
         self.exec_str: str | list[str] = exec_str
         self.loop_var: bool = False
-        self.used_vars: set[str] = set()
+        self.used_vars: dict[str, set[str]] = dict()
 
     def priority(self) -> int:
         raise NotImplementedError
@@ -517,7 +517,7 @@ class VarExpr(BaseExpr):
             if is_prime:
                 self.z3_expr = prot.var_z3_map_prime[self.name + '_']
                 self.exec_str = self.name + '_'
-                self.used_vars.add(self.name)
+                self.used_vars[self.name] = set()
             else:
                 self.z3_expr = prot.var_z3_map[self.name]
                 self.exec_str = self.name
@@ -570,7 +570,10 @@ class ArrayIndex(BaseExpr):
         self.idx = self.idx.elaborate(prot, bound_vars, is_prime=False)
         self.exec_str = f'{self.v.exec_str}[{self.idx.exec_str}]'
         if is_prime:
-            self.used_vars = set(f'{var}[{self.idx.exec_str}]' for var in self.v.used_vars)
+            for var in self.v.used_vars.keys():
+                if var not in self.used_vars:
+                    self.used_vars[var] = set()
+                self.used_vars[var].update(f'{self.idx.exec_str}')
         if bound_vars:
             if isinstance(self.v, VarExpr) and isinstance(self.v.typ, ArrayType) and isinstance(self.idx.z3_expr, range):
                 self.z3_expr = self.v.z3_expr
@@ -733,7 +736,14 @@ class OpExpr(BaseExpr):
         self.expr2 = self.expr2.elaborate(prot, bound_vars, is_prime)
         self.loop_var = self.expr1.loop_var and self.expr2.loop_var
         if is_prime:
-            self.used_vars.update(self.expr1.used_vars | self.expr2.used_vars)
+            for var, val in self.expr1.used_vars.items():
+                if var not in self.used_vars:
+                    self.used_vars[var] = set()
+                self.used_vars[var] |= val
+            for var, val in self.expr2.used_vars.items():
+                if var not in self.used_vars:
+                    self.used_vars[var] = set()
+                self.used_vars[var] |= val
         if self.op == '=':
             if isinstance(self.expr2, BooleanExpr):
                 if self.expr2.val:
@@ -815,7 +825,10 @@ class NegExpr(BaseExpr):
         self.z3_expr = Not(self.expr.z3_expr)
         self.exec_str = f'Not({self.expr.exec_str})'
         if is_prime:
-            self.used_vars.update(self.expr.used_vars)
+            for var, val in self.expr.used_vars.items():
+                if var not in self.used_vars:
+                    self.used_vars[var] = set()
+                self.used_vars[var] |= val
         return self
 
 
@@ -823,7 +836,7 @@ class BaseCmd:
     def __init__(self, z3_expr=None, exec_str=''):
         self.z3_expr: DatatypeRef = z3_expr
         self.exec_str: str = ''
-        self.used_vars: set[str] = set()
+        self.used_vars: dict[str, set[str]] = dict()
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], is_prime=True) -> "BaseCmd":
         return self
@@ -883,7 +896,10 @@ class AssignCmd(BaseCmd):
         else:
             self.exec_str = f'{self.var.exec_str}{prime_str} == {self.expr.exec_str}'
         if is_prime:
-            self.used_vars.update(self.var.used_vars)
+            for var, val in self.var.used_vars.items():
+                if var not in self.used_vars:
+                    self.used_vars[var] = set()
+                self.used_vars[var] |= val
         return self
 
 
@@ -915,7 +931,11 @@ class ForallCmd(BaseCmd):
         cmd_expr = [expr for cmd in self.cmds for expr in (cmd.z3_expr if isinstance(cmd.z3_expr, list) else [cmd.z3_expr])]
         self.z3_expr = And(cmd_expr)
         if is_prime:
-            self.used_vars.update(*[cmd.used_vars for cmd in self.cmds])
+            for cmd in self.cmds:
+                for var, val in cmd.used_vars.items():
+                    if var not in self.used_vars:
+                        self.used_vars[var] = set()
+                    self.used_vars[var] |= val
         exec_str = [f'{for_collector_name}_{self.cnt} = []', f'for {self.var} in {self.typ.z3_type}:']
         for cmd in self.cmds:
             exec_str.append(f'{for_collector_name}_{self.cnt}.append({cmd.exec_str})')
@@ -1015,6 +1035,7 @@ class MurphiRule(ProtDecl):
             for rule_var in self.rule_vars:
                 self.rule_var_map[rule_var.name] = rule_var.typ
         self.name = self.name.replace('"', '')
+        self.used_vars: dict[str, set[str]] = dict()
 
     def __str__(self):
         res = f'rule "{self.name}"\n'
@@ -1049,9 +1070,29 @@ class MurphiRule(ProtDecl):
                 exec_str.append(f'{rule_collector_name}_{self.name}.extend({for_collector_name}_{cmd.cnt})')
             else:
                 exec_str.append(f'{rule_collector_name}_{self.name}.append({cmd.exec_str})')
-        unused_vars = set(prot.var_map.keys()) - set.union(*[cmd.used_vars for cmd in self.cmds])
-        for var in unused_vars:
-            exec_str.append(f'{var}_ == {var}')
+
+        for cmd in self.cmds:
+            for var, val in cmd.used_vars.items():
+                if var not in self.used_vars:
+                    self.used_vars[var] = set()
+                self.used_vars[var] |= val
+
+        rule_loop_var = '_rule_unused_var_i_'
+
+        for var, idx_range in prot.full_vars.items():
+            var_set = self.used_vars.get(var, set())
+            if len(idx_range) > 0:
+                exec_str.append(f'for {rule_loop_var} in {idx_range}:')
+                for idx in var_set:
+                    exec_str.append(f'    if {rule_loop_var} == {idx}:')
+                    exec_str.append(f'        continue')
+                exec_str.append(f'    {rule_collector_name}_{self.name}.append('
+                                f'{var}_[{rule_loop_var}] == {var}[{rule_loop_var}]'
+                                f')')
+            if var not in self.used_vars:
+                exec_str.append(f'{rule_collector_name}_{self.name}.append('
+                                f'{var}_ == {var}'
+                                f')')
         exec_str.append(f'{prot_decl_collector_name}_{self.name}.append('
                         f'And({self.cond.exec_str}, *{rule_collector_name}_{self.name})'
                         f')')
@@ -1176,12 +1217,18 @@ class MurphiProtocol:
         self.var_map_prime = dict()
         self.var_z3_map_prime = dict()
 
-        self.full_vars: dict[str, int | set[int]] = {}
+        self.full_vars: dict[str, range] = dict()
         for var_decl in self.vars:
             self.var_map[var_decl.name] = var_decl.typ
             self.var_map_prime[f'{var_decl.name}_'] = var_decl.typ
+
         for var_decl in self.vars:
             var_decl.elaborate(self)
+            if isinstance(var_decl.typ, ArrayType):
+                assert isinstance(var_decl.typ.idx_z3_type, range)
+                self.full_vars[var_decl.name] = var_decl.typ.idx_z3_type
+            else:
+                self.full_vars[var_decl.name] = range(0)
             self.var_z3_map[var_decl.name] = var_decl.z3_expr
             self.var_z3_map_prime[f'{var_decl.name}_'] = var_decl.z3_expr
 
@@ -1192,13 +1239,6 @@ class MurphiProtocol:
         assert len(start_states) == 1
         self.start_state = start_states[0]
         self.init_exec_str = '\n'.join([self.start_state.exec_str, f'init = simplify(And(*{prot_decl_collector_name}_{self.start_state.name}))'])
-
-        for var_decl in self.vars:
-            if isinstance(var_decl.typ, ArrayType):
-                assert isinstance(var_decl.typ.idx_z3_type, range)
-                self.full_vars[var_decl.name] = set(var_decl.typ.idx_z3_type)
-            else:
-                self.full_vars[var_decl.name] = 0
 
         prot_exec_str = [f'{prot_collector_name} = []']
         inv_exec_str = [f'{inv_collector_name} = []']
@@ -1274,9 +1314,9 @@ class MurphiProtocol:
         var_prime_collector = ''
         for var_name in self.var_map_prime.keys():
             var_prime_collector += f'if isinstance({var_name}, list):\n'
-            var_prime_collector += f'    variables.extend({var_name})\n'
+            var_prime_collector += f'    primes.extend({var_name})\n'
             var_prime_collector += f'else:\n'
-            var_prime_collector += f'    variables.append({var_name})\n'
+            var_prime_collector += f'    primes.append({var_name})\n'
         trans_collector = []
         inv_collector = []
         for decl in self.decls:
@@ -1286,7 +1326,7 @@ class MurphiProtocol:
                 if isinstance(decl, MurphiInvariant):
                     inv_collector.append(f'{prot_decl_collector_name}_{decl.name}')
                 elif isinstance(decl, MurphiRuleSet):
-                    inv_collector.append(f'{ruleset_collector_name}_{decl.cnt}')
+                    inv_collector.append(f'{inv_collector_name}')
                 else:
                     raise NotImplementedError
             else:
