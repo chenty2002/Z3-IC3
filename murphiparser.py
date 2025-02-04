@@ -153,4 +153,6 @@ if __name__ == '__main__':
     file_name = "mutualEx.m"
     # prot = parse_file(parse_path+parse_name+'.m', ivyselect, smvSelect)
     lex_tree = parse_file(file_name)
-    print(lex_tree)
+    assert isinstance(lex_tree, murphi.MurphiProtocol)
+    lex_tree.to_z3()
+
