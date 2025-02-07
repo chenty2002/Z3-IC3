@@ -2,6 +2,8 @@
 from z3 import *
 from pdr import PDR
 from bmc import BMC
+from murphi import MurphiProtocol
+from murphiparser import parse_file
 
 
 # SAFE
@@ -242,24 +244,27 @@ def listTests():
 
 
 if __name__ == "__main__":
-    # solver = PDR(*tests['Mutual']())
-    # solver.run()
     import argparse
 
     parser = argparse.ArgumentParser(description="Run tests examples on the PDR algorithm")
     parser.add_argument('-ls', action='store_true')
-    parser.add_argument('testname', type=str, help='The name of the test to run', default=None, nargs='?')
+    parser.add_argument('testname', type=str, help='The name of the test/murphi filename to run', default=None, nargs='?')
     args = parser.parse_args()
     if args.ls:
         listTests()
     elif args.testname is not None:
         name = args.testname
         print("=========== Running test", name, "===========")
-        # solver = PDR(*tests[name]())
+        if name in tests:
+            solver = PDR(*tests[name](), debug=True)
+            solver.run()
+        else:
+            lex_tree = parse_file(name)
+            assert isinstance(lex_tree, MurphiProtocol)
+            solver = PDR(*lex_tree.to_z3(), debug=True)
+            solver.run()
+    else:
+        name = 'Mutual'
+        print("=========== Running test", name, "===========")
         solver = PDR(*tests[name]())
         solver.run()
-    else:
-        for name in tests:
-            print("=========== Running test", name, "===========")
-            solver = PDR(*tests[name]())
-            solver.run()
