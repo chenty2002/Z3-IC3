@@ -53,18 +53,7 @@ def tuple_to_list(t):
 
 
 const_map = dict()
-digitType_map = dict()
-re_digitType_map = dict()
-specific_typ = {}
 specific_var = {}
-specific_enum_var = {}
-
-
-class UsedVar:
-    def __init__(self, name: str, typ: "MurphiType", exec_typ: Optional[range | set] = None):
-        self.name = name
-        self.typ = typ
-        self.exec_typ = exec_typ
 
 
 class MurphiConstDecl:
@@ -84,8 +73,7 @@ class MurphiConstDecl:
 
 
 class MurphiType:
-    def __init__(self, z3_type=None, exec_str=''):
-        self.z3_type: Optional[DatatypeSortRef | range | int | bool] = z3_type
+    def __init__(self, exec_str=''):
         self.exec_str: str = exec_str
 
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
@@ -104,6 +92,7 @@ class VarType(MurphiType):
     def __init__(self, name):
         super().__init__()
         self.name = name
+        self.typ = None
 
     def __str__(self):
         return self.name
@@ -119,11 +108,11 @@ class VarType(MurphiType):
 
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         if self.name in prot.var_map:
-            self.z3_type = prot.var_map[self.name].z3_type
             self.exec_str = prot.var_map[self.name].exec_str
+            self.typ = prot.var_map[self.name]
         elif self.name in prot.typ_map:
-            self.z3_type = prot.typ_map[self.name].z3_type
             self.exec_str = prot.typ_map[self.name].exec_str
+            self.typ = prot.typ_map[self.name]
         else:
             raise ValueError(f'Variable {self.name} not declared')
 
@@ -142,6 +131,8 @@ class RngType(MurphiType):
         self.exec_str = 'IntSort()'
         self.downRng = down_rng
         self.upRng = up_rng
+        self.down_val = None
+        self.up_val = None
 
     def __str__(self):
         return f'{self.downRng}..{self.upRng}'
@@ -164,7 +155,8 @@ class RngType(MurphiType):
         for name, val in const_map.items():
             up_str = up_str.replace(name, str(val))
         up: int = eval(up_str)
-        self.z3_type = range(down-1, up)
+        self.down_val = down
+        self.up_val = up
         self.exec_str = f'range({down-1}, {up})'
 
 
@@ -177,7 +169,7 @@ class BooleanType(MurphiType):
         return cls.__instance
 
     def __init__(self):
-        super().__init__(BoolSort(), 'BoolSort()')
+        super().__init__('BoolSort()')
 
     def __str__(self):
         return 'boolean'
@@ -262,7 +254,6 @@ class EnumType(MurphiType):
     def __init__(self, names):
         super().__init__()
         self.names = names
-        self.enum_map: dict[str, DatatypeRef] = {}
 
     def __str__(self):
         enums = ', '.join(name for name in self.names)
@@ -280,11 +271,9 @@ class EnumType(MurphiType):
 
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         typ_name = kwargs['typ_name']
-        self.z3_type, enum_val = EnumSort(typ_name, self.names)
         names = ', '.join(self.names)
         names_str = ', '.join(f'\'{name}\'' for name in self.names)
-        self.exec_str = f'{typ_name}, ({names}) = EnumSort(\'{typ_name}_test\', [{names_str}])'
-        self.enum_map = {name: val for name, val in zip(self.names, enum_val)}
+        self.exec_str = f'{typ_name}, ({names}) = EnumSort(\'{typ_name}\', [{names_str}])'
 
 
 class ArrayType(MurphiType):
@@ -298,8 +287,6 @@ class ArrayType(MurphiType):
 
     def __init__(self, idx_typ, ele_typ):
         super().__init__()
-        self.ele_z3_type = None
-        self.idx_z3_type = None
         self.idx_typ: MurphiType = idx_typ
         self.ele_typ: MurphiType = ele_typ
 
@@ -318,9 +305,6 @@ class ArrayType(MurphiType):
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         self.idx_typ.elaborate(prot, **kwargs)
         self.ele_typ.elaborate(prot, **kwargs)
-        self.idx_z3_type: range = self.idx_typ.z3_type
-        self.ele_z3_type = self.ele_typ.z3_type
-        self.z3_type = self.ele_z3_type
         self.exec_str = self.ele_typ.exec_str
 
 
@@ -370,7 +354,6 @@ class RecordType(MurphiType):
         exec_str.append(f'{self.typ_name}.declare(\'mk_{self.typ_name}\', {attr_str})')
         exec_str.append(f'{self.typ_name} = {self.typ_name}.create()')
         self.exec_str = '\n'.join(exec_str)
-        self.z3_type = Datatype(self.typ_name)
 
 
 union_dict = dict()
@@ -378,15 +361,8 @@ union_dict = dict()
 
 class MurphiTypeDecl:
     def __init__(self, name, typ):
-        # specific_typ[str(name)] = typ
         self.name = name
         self.typ: MurphiType = typ
-        if isinstance(self.typ, ScalarSetType):
-            digitType_map[self.name] = self.typ
-            re_digitType_map[self.typ.const_name] = self.name
-        elif isinstance(self.typ, RngType):
-            digitType_map[self.name] = self.typ
-            re_digitType_map[str(self.typ)] = self.name
 
     def __str__(self):
         return f'{self.name} : {self.typ}'
@@ -405,7 +381,6 @@ class MurphiVarDecl:
     def __init__(self, name, typ):
         self.name = name
         self.typ: MurphiType = typ
-        # self.z3_expr: Optional[DatatypeRef] = None
         self.exec_str: str = ''
         self.prime_exec_str: str = ''
 
@@ -436,9 +411,6 @@ class MurphiVarDecl:
             self.exec_str = ''
             self.prime_exec_str = ''
         if isinstance(self.typ, ArrayType):
-            assert isinstance(self.typ.idx_z3_type, range)
-            # self.z3_expr = [Const(f'{self.name}[{i}]', self.typ.ele_z3_type) for i in self.typ.idx_z3_type]
-
             if isinstance(self.typ.ele_typ, VarType):
                 if (isinstance(prot.typ_map[self.typ.ele_typ.name], EnumType) or
                         isinstance(prot.typ_map[self.typ.ele_typ.name], RecordType)):
@@ -447,14 +419,13 @@ class MurphiVarDecl:
                     typ_exec_str = 'IntSort()'
             self.exec_str += (f'{self.name} = ['
                               f'Const(f\'{self.name}[{{i}}]\', {typ_exec_str}) '
-                              f'for i in range({self.typ.idx_z3_type.start}, {self.typ.idx_z3_type.stop})'
+                              f'for i in {self.typ.idx_typ.exec_str}'
                               f']')
             self.prime_exec_str += (f'{self.name}_ = ['
                                     f'Const(f\'{self.name}[{{i}}]\\\'\', {typ_exec_str}) '
-                                    f'for i in range({self.typ.idx_z3_type.start}, {self.typ.idx_z3_type.stop})'
+                                    f'for i in {self.typ.idx_typ.exec_str}'
                                     f']')
         else:
-            # self.z3_expr = Const(self.name, self.typ.z3_type)
             self.exec_str += f'{self.name} = Const(\'{self.name}\', {typ_exec_str})'
             self.prime_exec_str += f'{self.name}_ = Const(\'{self.name}\\\'\', {typ_exec_str})'
 
@@ -462,12 +433,10 @@ class MurphiVarDecl:
 class BaseExpr:
     """Base class for Murphi expressions."""
 
-    def __init__(self, z3_expr=None, exec_str=''):
-        # self.z3_expr: Optional[DatatypeRef] = z3_expr
+    def __init__(self, exec_str=''):
         self.exec_str: str | list[str] = exec_str
         self.loop_var: bool = False
         self.prime_pair: (str, str) = ('', '')
-        # self.used_vars: dict[str, set[str]] = dict()
 
     def priority(self) -> int:
         raise NotImplementedError
@@ -520,7 +489,7 @@ class UnknownExpr(BaseExpr):
 
 class BooleanExpr(BaseExpr):
     def __init__(self, val):
-        super().__init__(BoolVal(val), str(val))
+        super().__init__(str(val))
         self.val = val
 
     def priority(self):
@@ -541,7 +510,7 @@ class BooleanExpr(BaseExpr):
 
 class EnumValExpr(BaseExpr):
     def __init__(self, enum_type, enum_val):
-        super().__init__(enum_type.enum_map[enum_val], enum_val)
+        super().__init__(enum_val)
         self.enum_type: EnumType = enum_type
         self.enum_val: str = enum_val
 
@@ -582,16 +551,12 @@ class VarExpr(BaseExpr):
 
     def elaborate(self, prot, bound_vars, is_prime=True):
         if self.name in bound_vars:
-            # self.z3_expr = bound_vars[self.name].z3_type
             self.exec_str = self.name
             self.loop_var = True
         else:
             if is_prime:
-                # self.z3_expr = prot.var_z3_map_prime[self.name + '_']
                 self.exec_str = self.name + '_'
-                # self.used_vars[self.name] = set()
             else:
-                # self.z3_expr = prot.var_z3_map[self.name]
                 self.exec_str = self.name
         return self
 
@@ -620,11 +585,6 @@ class FieldName(BaseExpr):
         self.exec_str = f'{typ_name}.{self.field}({self.v.exec_str})'
         self.prime_pair = (f'{typ_name}.{self.field}({self.v.prime_pair[0]})',
                            f'{typ_name}.{self.field}({self.v.prime_pair[1]})')
-        # if is_prime:
-        #     for var in self.v.used_vars.keys():
-        #         if var not in self.used_vars:
-        #             self.used_vars[var] = set()
-        #         self.used_vars[var].update(f'{self.field}')
         return self
 
 
@@ -652,16 +612,6 @@ class ArrayIndex(BaseExpr):
         self.exec_str = f'{self.v.exec_str}[{self.idx.exec_str}]'
         self.prime_pair = (f'{self.v.prime_pair[0]}[{self.idx.exec_str}]',
                            f'{self.v.prime_pair[1]}[{self.idx.exec_str}]')
-        # if is_prime:
-        #     for var in self.v.used_vars.keys():
-        #         if var not in self.used_vars:
-        #             self.used_vars[var] = set()
-        #         self.used_vars[var].update(f'{self.idx.exec_str}')
-        # if bound_vars:
-        #     if isinstance(self.v, VarExpr) and isinstance(self.v.typ, ArrayType) and isinstance(self.idx.z3_expr, range):
-        #         self.z3_expr = self.v.z3_expr
-        #     else:
-        #         raise ValueError('Array index error')
         return self
 
 
@@ -694,12 +644,7 @@ class ForallExpr(BaseExpr):
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], is_prime=True) -> BaseExpr:
         var_name = f'{self.var}_' if is_prime else self.var
         self.expr = self.expr.elaborate(prot, bound_vars | {var_name: self.typ}, is_prime)
-        # if is_prime:
-        #     for var, val in self.expr.used_vars.items():
-        #         if var not in self.used_vars:
-        #             self.used_vars[var] = set()
-        #         self.used_vars[var] |= val
-        self.exec_str = f'And(*[{self.expr.exec_str} for {self.var} in {self.typ.z3_type}])'
+        self.exec_str = f'And(*[{self.expr.exec_str} for {self.var} in {self.typ.exec_str}])'
         return self
 
 
@@ -743,23 +688,6 @@ priority_map: dict[str, int] = {
     '&': 35,
     '|': 30,
     '->': 25
-}
-
-operator_map: dict[str, Callable[[AstRef, AstRef], AstRef]] = {
-    '*': lambda a, b: a * b,
-    '/': lambda a, b: a / b,
-    '%': lambda a, b: a % b,
-    '+': lambda a, b: a + b,
-    '-': lambda a, b: a - b,
-    '=': lambda a, b: a == b,
-    '<=': lambda a, b: a <= b,
-    '>=': lambda a, b: a >= b,
-    '>': lambda a, b: a > b,
-    '<': lambda a, b: a < b,
-    '!=': lambda a, b: a != b,
-    '&': And,
-    '|': Or,
-    '->': Implies
 }
 
 
@@ -855,7 +783,7 @@ class OpExpr(BaseExpr):
 
 class IntExpr(BaseExpr):
     def __init__(self, expr):
-        super().__init__(expr, str(expr))
+        super().__init__(str(expr))
         self.expr: int = expr
         self.loop_var = True
 
@@ -899,20 +827,12 @@ class NegExpr(BaseExpr):
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], is_prime=True) -> BaseExpr:
         self.expr = self.expr.elaborate(prot, bound_vars, is_prime)
-        # self.z3_expr = Not(self.expr.z3_expr)
         self.exec_str = f'Not({self.expr.exec_str})'
-        # if is_prime:
-        #     for var, val in self.expr.used_vars.items():
-        #         if var not in self.used_vars:
-        #             self.used_vars[var] = set()
-        #         self.used_vars[var] |= val
         return self
 
 
 class BaseCmd:
-    def __init__(self, z3_expr=None, exec_str=''):
-        # self.z3_expr: DatatypeRef = z3_expr
-
+    def __init__(self, exec_str=''):
         # string composing the expressions for exec in python
         # ForallCmd: self.exec_str = commands, {for_cmd_collector_name}_{self.cnt} = result
         # IfCmd: self.exec_str = commands, {if_cmd_collector_name}_{self.cnt} = result
@@ -967,13 +887,6 @@ class AssignCmd(BaseCmd):
     def elaborate(self, prot, bound_vars, is_prime=True):
         self.var = self.var.elaborate(prot, bound_vars, is_prime)
         self.expr = self.expr.elaborate(prot, bound_vars, False)
-        # if isinstance(self.var, ArrayIndex):
-        #     assert isinstance(self.var.z3_expr, list)
-        #     self.z3_expr = [var == self.expr.z3_expr for var in self.var.z3_expr]
-        # else:
-        #     self.z3_expr = self.var.z3_expr == self.expr.z3_expr
-
-        # prime_str = '_' if is_prime and not isinstance(self.var, ArrayIndex) else ''
         prime_pair = self.var.prime_pair
         var_exec_str = prime_pair[1] if is_prime else prime_pair[0]
 
@@ -987,11 +900,6 @@ class AssignCmd(BaseCmd):
             self.exec_str = f'{var_exec_str} == {self.expr.exec_str}'
         if is_prime:
             self.used_vars_collector.append((f'{prime_pair[0]}', f'{prime_pair[1]}'))
-        # if is_prime:
-        #     for var, val in self.var.used_vars.items():
-        #         if var not in self.used_vars[0]:
-        #             self.used_vars[0][var] = set()
-        #         self.used_vars[0][var] |= val
         return self
 
 
@@ -1020,14 +928,6 @@ class ForallCmd(BaseCmd):
 
     def elaborate(self, prot, bound_vars, is_prime=True):
         self.cmds = [cmd.elaborate(prot, bound_vars | {self.var: self.typ}, is_prime) for cmd in self.cmds]
-        # cmd_expr = [expr for cmd in self.cmds for expr in (cmd.z3_expr if isinstance(cmd.z3_expr, list) else [cmd.z3_expr])]
-        # self.z3_expr = And(cmd_expr)
-        # if is_prime:
-        #     for cmd in self.cmds:
-        #         for var, val in cmd.used_vars.items():
-        #             if var not in self.used_vars:
-        #                 self.used_vars[var] = set()
-        #             self.used_vars[var] |= val
         exec_str = []
         indent_start = 2
         if is_prime:
@@ -1035,7 +935,7 @@ class ForallCmd(BaseCmd):
             exec_str.append(f'{for_cmd_used_var_collector_name}_{self.cnt} = set()')
             indent_start = 3
         exec_str += [f'{for_cmd_collector_name}_{self.cnt} = []',
-                     f'for {self.var} in {self.typ.z3_type}:']
+                     f'for {self.var} in {self.typ.exec_str}:']
         for cmd in self.cmds:
             if isinstance(cmd, ForallCmd):
                 exec_str.append(f'{for_cmd_collector_name}_{self.cnt} += {for_cmd_collector_name}_{cmd.cnt})')
@@ -1055,6 +955,29 @@ class ForallCmd(BaseCmd):
         return self
 
 
+def get_branch_exec_str(branch: list[BaseCmd],
+                        branch_collector_name,
+                        branch_used_var_collector_name,
+                        is_prime=True):
+    branch_exec_str = [f'{branch_collector_name} = []', f'{branch_used_var_collector_name} = set()']
+    for cmd in branch:
+        if isinstance(cmd, ForallCmd):
+            branch_exec_str.append(f'{branch_collector_name} += {for_cmd_collector_name}_{cmd.cnt}')
+            if is_prime:
+                branch_exec_str.append(f'{branch_used_var_collector_name} |= {for_cmd_used_var_collector_name}_{cmd.cnt}')
+        elif isinstance(cmd, IfCmd):
+            branch_exec_str.append(f'{branch_collector_name} += {if_cmd_collector_name}_{cmd.cnt}')
+            if is_prime:
+                branch_exec_str.append(f'{branch_used_var_collector_name} |= {if_cmd_used_var_collector_name}_{cmd.cnt}')
+        else:
+            branch_exec_str.append(f'{branch_collector_name}.append({cmd.exec_str})')
+            if is_prime:
+                for used_var, used_prime in cmd.used_vars_collector:
+                    branch_exec_str.append(f'{branch_used_var_collector_name}.add('
+                                           f'({used_var}, {used_prime}))')
+    return branch_exec_str
+
+
 class IfCmd(BaseCmd):
     cnt = 0
 
@@ -1066,8 +989,6 @@ class IfCmd(BaseCmd):
         self.args = args
         self.if_branches = tuple_to_list(tuple(zip(args[::2], args[1::2])))
         self.else_branch = args[-1] if len(args) % 2 == 1 else None
-        # self.if_exec_str = []
-        # self.else_exec_str = ''
 
     def __str__(self):
         res = f'if ({self.if_branches[0][0]}) then\n'
@@ -1087,29 +1008,6 @@ class IfCmd(BaseCmd):
     def __eq__(self, other):
         return isinstance(other, IfCmd) and self.args == other.args
 
-    def get_branch_exec_str(self,
-                            branch: list[BaseCmd],
-                            branch_collector_name,
-                            branch_used_var_collector_name,
-                            is_prime=True):
-        branch_exec_str = [f'{branch_collector_name} = []', f'{branch_used_var_collector_name} = set()']
-        for cmd in branch:
-            if isinstance(cmd, ForallCmd):
-                branch_exec_str.append(f'{branch_collector_name} += {for_cmd_collector_name}_{cmd.cnt}')
-                if is_prime:
-                    branch_exec_str.append(f'{branch_used_var_collector_name} |= {for_cmd_used_var_collector_name}_{cmd.cnt}')
-            elif isinstance(cmd, IfCmd):
-                branch_exec_str.append(f'{branch_collector_name} += {if_cmd_collector_name}_{cmd.cnt}')
-                if is_prime:
-                    branch_exec_str.append(f'{branch_used_var_collector_name} |= {if_cmd_used_var_collector_name}_{cmd.cnt}')
-            else:
-                branch_exec_str.append(f'{branch_collector_name}.append({cmd.exec_str})')
-                if is_prime:
-                    for used_var, used_prime in cmd.used_vars_collector:
-                        branch_exec_str.append(f'{branch_used_var_collector_name}.add('
-                                               f'({used_var}, {used_prime}))')
-        return branch_exec_str
-
     def elaborate(self, prot, bound_vars, is_prime=True):
         if is_prime:
             self.used_vars_collector.append((f'{if_cmd_used_var_collector_name}_{self.cnt}', ''))
@@ -1123,7 +1021,7 @@ class IfCmd(BaseCmd):
             branch[0] = branch[0].elaborate(prot, bound_vars, False)
             branch[1] = [cmd.elaborate(prot, bound_vars, is_prime) for cmd in branch[1]]
 
-            exec_str += self.get_branch_exec_str(branch[1], branch_collector_name, branch_used_var_collector_name, is_prime)
+            exec_str += get_branch_exec_str(branch[1], branch_collector_name, branch_used_var_collector_name, is_prime)
 
             if last_branch_condition == 'True':
                 if_exec_str = f'And({branch[0].exec_str}, *{branch_collector_name})'
@@ -1136,7 +1034,7 @@ class IfCmd(BaseCmd):
         if self.else_branch:
             self.else_branch = [cmd.elaborate(prot, bound_vars, is_prime) for cmd in self.else_branch]
 
-            exec_str += self.get_branch_exec_str(self.else_branch, branch_collector_name, branch_used_var_collector_name, is_prime)
+            exec_str += get_branch_exec_str(self.else_branch, branch_collector_name, branch_used_var_collector_name, is_prime)
 
             exec_str.append(f'{if_cmd_collector_name}_{self.cnt}.append(And({last_branch_condition}, *{branch_collector_name}))')
 
@@ -1145,8 +1043,7 @@ class IfCmd(BaseCmd):
 
 
 class ProtDecl:
-    def __init__(self, is_startstate, is_invariant, z3_expr=None, exec_str=''):
-        # self.z3_expr: Optional[DatatypeRef] = z3_expr
+    def __init__(self, is_startstate, is_invariant, exec_str=''):
         self.is_startstate: bool = is_startstate
         self.is_invariant: bool = is_invariant
         self.exec_str: str = exec_str
@@ -1178,7 +1075,6 @@ class StartState(ProtDecl):
 
     def elaborate(self, prot, bound_vars):
         self.cmds: list[BaseCmd] = [cmd.elaborate(prot, bound_vars, is_prime=False) for cmd in self.cmds]
-        # self.z3_expr = And([cmd.z3_expr for cmd in self.cmds])
         exec_str = [f'{prot_decl_collector_name}_{self.name} = []']
         for cmd in self.cmds:
             if isinstance(cmd, ForallCmd):
@@ -1204,7 +1100,6 @@ class MurphiRule(ProtDecl):
             for rule_var in self.rule_vars:
                 self.rule_var_map[rule_var.name] = rule_var.typ
         self.name = self.name.replace('"', '')
-        # self.used_vars: dict[str, set[str]] = dict()
 
     def __str__(self):
         res = f'rule "{self.name}"\n'
@@ -1224,14 +1119,6 @@ class MurphiRule(ProtDecl):
     def elaborate(self, prot, bound_vars):
         self.cond = self.cond.elaborate(prot, bound_vars, is_prime=False)
         self.cmds = [cmd.elaborate(prot, bound_vars) for cmd in self.cmds]
-        # expr_width = max(*[len(cmd.z3_expr) for cmd in self.cmds if isinstance(cmd.z3_expr, list)], 1)
-        # cond_expr_list = [self.cond.z3_expr] * expr_width if not isinstance(self.cond.z3_expr, list) else self.cond.z3_expr
-        # assert len(cond_expr_list) == expr_width
-        # cmd_expr_list = []
-        # for i in range(expr_width):
-        #     cmd_expr_list.append(And(cond_expr_list[i],
-        #                              *[cmd.z3_expr[i] if isinstance(cmd.z3_expr, list) else cmd.z3_expr for cmd in self.cmds]))
-        # self.z3_expr = Or(cmd_expr_list)
         exec_str = [f'{rule_collector_name}_{self.name} = []',
                     f'{rule_used_var_collector_name}_{self.name} = {set()}']
         for cmd in self.cmds:
@@ -1285,7 +1172,6 @@ class MurphiInvariant(ProtDecl):
 
     def elaborate(self, prot, bound_vars):
         self.inv = self.inv.elaborate(prot, bound_vars, is_prime=False)
-        # self.z3_expr = self.inv.z3_expr
         if isinstance(self.inv.exec_str, list) and len(self.inv.exec_str) == 2:
             self.exec_str = (f'{self.inv.exec_str[0]}'
                              f'    {prot_decl_collector_name}_{self.name}.append({self.inv.exec_str[1]})')
@@ -1325,11 +1211,6 @@ class MurphiRuleSet(ProtDecl):
 
     def elaborate(self, prot, bound_vars):
         self.rules = [rule.elaborate(prot, bound_vars | self.var_map) for rule in self.rules]
-        # if not self.is_invariant:
-        #     self.z3_expr = Or([rule.z3_expr for rule in self.rules]) if not self.is_startstate else self.rules[0].z3_expr
-        # else:
-        #     self.z3_expr = And([rule.z3_expr for rule in self.rules])
-
         exec_str = [f'# ruleset {self.cnt}',
                     f'{ruleset_collector_name}_{self.cnt} = []']
         for_loop_str = []
@@ -1337,7 +1218,7 @@ class MurphiRuleSet(ProtDecl):
         for rule in self.rules:
             exec_str.append(f'{prot_decl_collector_name}_{rule.name} = []')
         for decl in self.var_decls:
-            for_loop_str.append(indent(f'for {decl.name} in {decl.typ.z3_type}:', 4*loop_cnt))
+            for_loop_str.append(indent(f'for {decl.name} in {decl.typ.exec_str}:', 4*loop_cnt))
             loop_cnt += 1
         for rule in self.rules:
             exec_str.append(f'\n# rule {rule.name} of ruleset {self.cnt}')
@@ -1368,9 +1249,7 @@ class MurphiProtocol:
         self.scalarset = list()
 
         self.var_map = dict()
-        # self.var_z3_map = dict()
         self.var_map_prime = dict()
-        # self.var_z3_map_prime = dict()
 
         # Process types
         for typ_decl in self.types:
@@ -1385,7 +1264,6 @@ class MurphiProtocol:
                 self.scalarset.append(typ_decl.name)
 
         # Process variables
-
         self.full_vars: set[(str, str)] = set()
         for var_decl in self.vars:
             self.var_map[var_decl.name] = var_decl.typ
@@ -1394,17 +1272,11 @@ class MurphiProtocol:
         for var_decl in self.vars:
             var_decl.elaborate(self)
             if isinstance(var_decl.typ, ArrayType):
-                assert isinstance(var_decl.typ.idx_z3_type, range)
-                self.full_vars.add((f'{var_decl.name}[{i}]', f'{var_decl.name}_[{i}]') for i in var_decl.typ.idx_z3_type)
-                # self.full_vars[var_decl.name] = UsedVar(var_decl.name, var_decl.typ, var_decl.typ.idx_z3_type)
+                self.full_vars.add((f'{var_decl.name}[{i}]', f'{var_decl.name}_[{i}]') for i in eval(var_decl.typ.idx_typ.exec_str))
             elif isinstance(var_decl.typ, RecordType):
                 self.full_vars.add((f'{var_decl.name}.{attr}', f'{var_decl.name}_.{attr}') for attr in var_decl.typ.attrs.keys())
-                # self.full_vars[var_decl.name] = UsedVar(var_decl.name, var_decl.typ, set(var_decl.typ.attrs.keys()))
             else:
                 self.full_vars.add((var_decl.name, f'{var_decl.name}_'))
-                # self.full_vars[var_decl.name] = UsedVar(var_decl.name, var_decl.typ, set())
-            # self.var_z3_map[var_decl.name] = var_decl.z3_expr
-            # self.var_z3_map_prime[f'{var_decl.name}_'] = var_decl.z3_expr
 
         # Elaboration
         for decl in self.decls:
@@ -1451,7 +1323,6 @@ class MurphiProtocol:
         self.typ_decl_exec_str = '\n'.join(typ_decl.typ.exec_str for typ_decl in self.types
                                            if isinstance(typ_decl.typ, EnumType) or
                                            isinstance(typ_decl.typ, RecordType))
-        # self.z3_expr = Or([decl.z3_expr for decl in self.decls if not decl.is_startstate])
 
         # Divide into categories
         self.rule_map = dict()
@@ -1472,7 +1343,6 @@ class MurphiProtocol:
                 self.inv_map[decl.name] = decl
             else:
                 raise NotImplementedError
-        # refine abs_r_src etc
         self.export_name = list(self.rule_map.keys())
 
     def __str__(self):
