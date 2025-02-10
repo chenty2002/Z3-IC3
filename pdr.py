@@ -21,7 +21,8 @@ class Cube(object):
 
 
 class PDR(object):
-    def __init__(self, literals, primes, init, trans, post):
+    def __init__(self, literals, primes, init, trans, post, debug):
+        self.debug = debug
         self.init = init
         self.trans = trans
         self.literals = literals
@@ -36,15 +37,17 @@ class PDR(object):
 
         iteration = 1
         while True:
-            print(f'\n\nIteration {iteration}')
-            iteration += 1
+            if self.debug:
+                print(f'\n\nIteration {iteration}')
+                iteration += 1
             c = self.getBadCube()
             if c is not None:
                 # print "Found bad cube:", c
                 # we have a bad cube, which we will try to block 
                 # if the cube is blocked from the previous frame 
                 # we can block it from all previous frames
-                print(f"Found bad cube {c}, blocking")
+                if self.debug:
+                    print(f"Found bad cube {c}, blocking")
                 trace = self.block_cube_recursive(c)
                 if trace is not None:
                     print("Found trace ending in bad state:")
@@ -55,7 +58,10 @@ class PDR(object):
                 # print "Checking for induction"
                 inv = self.check_induction()
                 if inv is not None:
-                    print("Found inductive invariant:", simplify(inv))
+                    simp = simplify(inv)
+                    print("Found inductive invariant:")
+                    set_option(max_depth=999999, max_lines=999999, max_args=999999)
+                    print(simp)
                     return True
                 print(f"Did not find invariant, adding frame {len(self.frames)}: True")
                 self.frames.append(True)
@@ -91,10 +97,11 @@ class PDR(object):
                 for i in range(1, s.frame_index + 1):
                     # if not self.isBlocked(s, i):
                     self.frames[i] = simplify(And(self.frames[i], Not(s.cube())))
-                print(f"Blocked cube {s} in all previous frames")
-                print("Frames:")
-                for i, f in enumerate(self.frames):
-                    print(f"Frame {i}: {f}")
+                if self.debug:
+                    print(f"Blocked cube {s} in all previous frames")
+                    print("Frames:")
+                    for i, f in enumerate(self.frames):
+                        print(f"Frame {i}: {f}")
             else:
                 # Cube 's' was not blocked by image of predecessor
                 # it will stay on the stack, and z (the model which allowed transition to s) will be added on top
