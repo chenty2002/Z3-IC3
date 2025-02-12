@@ -52,6 +52,27 @@ def tuple_to_list(t):
     return t
 
 
+# for RecordType and FieldName
+def get_atom_type(expr) -> str:
+    if isinstance(expr, VarExpr) or isinstance(expr, VarType):
+        if isinstance(expr.typ, ArrayType):
+            if isinstance(expr.typ.ele_typ, VarType):
+                return expr.typ.ele_typ.name
+        elif isinstance(expr.typ, RecordType):
+            return expr.typ.typ_name
+        elif isinstance(expr.typ, RngType):
+            return expr.exec_str
+        elif isinstance(expr.typ, EnumType):
+            return expr.name
+    elif isinstance(expr, ArrayType):
+        return get_atom_type(expr.ele_typ)
+    elif isinstance(expr, FieldName):
+        return get_atom_type(expr.v)
+    elif isinstance(expr, ArrayIndex):
+        return get_atom_type(expr.v)
+    return expr.exec_str
+
+
 const_map = dict()
 specific_var = {}
 
@@ -81,14 +102,6 @@ class MurphiType:
 
 
 class VarType(MurphiType):
-    __instances = dict()
-
-    def __new__(cls, *args, **kwargs):
-        idx = args[0]
-        if idx not in cls.__instances:
-            cls.__instances[idx] = super().__new__(cls)
-        return cls.__instances[idx]
-
     def __init__(self, name):
         super().__init__()
         self.name = name
@@ -118,14 +131,6 @@ class VarType(MurphiType):
 
 
 class RngType(MurphiType):
-    __instances = dict()
-
-    def __new__(cls, *args, **kwargs):
-        idx = tuple(args[:2])
-        if idx not in cls.__instances:
-            cls.__instances[idx] = super().__new__(cls)
-        return cls.__instances[idx]
-
     def __init__(self, down_rng: str, up_rng: str):
         super().__init__()
         self.exec_str = 'IntSort()'
@@ -157,17 +162,10 @@ class RngType(MurphiType):
         up: int = eval(up_str)
         self.down_val = down
         self.up_val = up
-        self.exec_str = f'range({down-1}, {up})'
+        self.exec_str = f'range({up-down+1})'
 
 
 class BooleanType(MurphiType):
-    __instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if cls.__instance is None:
-            cls.__instance = super().__new__(cls)
-        return cls.__instance
-
     def __init__(self):
         super().__init__('BoolSort()')
 
@@ -188,14 +186,6 @@ class BooleanType(MurphiType):
 
 
 class ScalarSetType(MurphiType):
-    __instances = dict()
-
-    def __new__(cls, *args, **kwargs):
-        idx = args[0]
-        if idx not in cls.__instances:
-            cls.__instances[idx] = super().__new__(cls)
-        return cls.__instances[idx]
-
     def __init__(self, const_name: str):
         super().__init__()
         assert isinstance(const_name, str)
@@ -215,14 +205,6 @@ class ScalarSetType(MurphiType):
 
 
 class UnionType(MurphiType):
-    __instances = dict()
-
-    def __new__(cls, *args, **kwargs):
-        idx = tuple(args)
-        if idx not in cls.__instances:
-            cls.__instances[idx] = super().__new__(cls)
-        return cls.__instances[idx]
-
     def __init__(self, typs):
         super().__init__()
         self.typs = typs
@@ -243,14 +225,6 @@ class UnionType(MurphiType):
 
 
 class EnumType(MurphiType):
-    __instances = dict()
-
-    def __new__(cls, *args, **kwargs):
-        idx = tuple(args[0])
-        if idx not in cls.__instances:
-            cls.__instances[idx] = super().__new__(cls)
-        return cls.__instances[idx]
-
     def __init__(self, names):
         super().__init__()
         self.names = names
@@ -277,14 +251,6 @@ class EnumType(MurphiType):
 
 
 class ArrayType(MurphiType):
-    __instances = dict()
-
-    def __new__(cls, *args, **kwargs):
-        idx = tuple(args[:2])
-        if idx not in cls.__instances:
-            cls.__instances[idx] = super().__new__(cls)
-        return cls.__instances[idx]
-
     def __init__(self, idx_typ, ele_typ):
         super().__init__()
         self.idx_typ: MurphiType = idx_typ
@@ -309,14 +275,6 @@ class ArrayType(MurphiType):
 
 
 class RecordType(MurphiType):
-    __instances = dict()
-
-    def __new__(cls, *args, **kwargs):
-        idx = tuple(map(lambda arg: arg.name, *args))
-        if idx not in cls.__instances:
-            cls.__instances[idx] = super().__new__(cls)
-        return cls.__instances[idx]
-
     def __init__(self, typ_decls):
         super().__init__()
         self.typ_name = ''
@@ -345,11 +303,11 @@ class RecordType(MurphiType):
         exec_str = [f'{self.typ_name} = Datatype(\'{self.typ_name}\')']
         attr_list = []
         for attr in self.typ_decls:
-            assert isinstance(attr.typ, VarType)
-            if attr.typ.exec_str.startswith('range'):
+            attr_type = get_atom_type(attr.typ)
+            if attr_type.startswith('range'):
                 attr_list.append(f'(\'{attr.name}\', IntSort())')
             else:
-                attr_list.append(f'(\'{attr.name}\', {attr.typ.name})')
+                attr_list.append(f'(\'{attr.name}\', {attr_type})')
         attr_str = ', '.join(attr_list)
         exec_str.append(f'{self.typ_name}.declare(\'mk_{self.typ_name}\', {attr_str})')
         exec_str.append(f'{self.typ_name} = {self.typ_name}.create()')
@@ -440,20 +398,6 @@ class BaseExpr:
 
     def priority(self) -> int:
         raise NotImplementedError
-
-    # for RecordType and FieldName
-    def get_atom_type(self, prot: "MurphiProtocol", expr: "BaseExpr") -> str:
-        if isinstance(expr, VarExpr):
-            assert expr.name in prot.var_map
-            if isinstance(expr.typ, ArrayType):
-                if isinstance(expr.typ.ele_typ, VarType):
-                    return expr.typ.ele_typ.name
-            elif isinstance(expr.typ, RecordType):
-                return expr.typ.typ_name
-        elif isinstance(expr, FieldName):
-            return self.get_atom_type(prot, expr.v)
-        elif isinstance(expr, ArrayIndex):
-            return self.get_atom_type(prot, expr.v)
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], is_prime=True) -> "BaseExpr":
         return self
@@ -581,7 +525,7 @@ class FieldName(BaseExpr):
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], is_prime=True) -> BaseExpr:
         self.v = self.v.elaborate(prot, bound_vars, is_prime)
-        typ_name = self.get_atom_type(prot, self.v)
+        typ_name = get_atom_type(self.v)
         self.exec_str = f'{typ_name}.{self.field}({self.v.exec_str})'
         self.prime_pair = (f'{typ_name}.{self.field}({self.v.prime_pair[0]})',
                            f'{typ_name}.{self.field}({self.v.prime_pair[1]})')
@@ -642,6 +586,7 @@ class ForallExpr(BaseExpr):
         return isinstance(other, ForallExpr) and self.var_decl == other.var_decl and self.expr == other.expr
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], is_prime=True) -> BaseExpr:
+        self.var_decl.elaborate(prot)
         var_name = f'{self.var}_' if is_prime else self.var
         self.expr = self.expr.elaborate(prot, bound_vars | {var_name: self.typ}, is_prime)
         self.exec_str = f'And(*[{self.expr.exec_str} for {self.var} in {self.typ.exec_str}])'
@@ -928,6 +873,7 @@ class ForallCmd(BaseCmd):
 
     def elaborate(self, prot, bound_vars, is_prime=True):
         self.cmds = [cmd.elaborate(prot, bound_vars | {self.var: self.typ}, is_prime) for cmd in self.cmds]
+        self.var_decl.elaborate(prot)
         exec_str = []
         indent_start = 2
         if is_prime:
@@ -1141,7 +1087,7 @@ class MurphiRule(ProtDecl):
                     exec_str.append(f'{rule_used_var_collector_name}_{self.name}.add(('
                                     f'{used_var}, {used_prime}))')
 
-        exec_str.append(f'__unused_vars_{self.name} = set(zip(variables, primes)) - {rule_used_var_collector_name}_{self.name}')
+        exec_str.append(f'__unused_vars_{self.name} = set(full_vars) - {rule_used_var_collector_name}_{self.name}')
         exec_str.append(f'for (var, var_) in __unused_vars_{self.name}:')
         exec_str.append(f'    {rule_collector_name}_{self.name}.append(var_ == var)')
         exec_str.append(f'{prot_decl_collector_name}_{self.name}.append('
@@ -1218,6 +1164,7 @@ class MurphiRuleSet(ProtDecl):
         for rule in self.rules:
             exec_str.append(f'{prot_decl_collector_name}_{rule.name} = []')
         for decl in self.var_decls:
+            decl.elaborate(prot)
             for_loop_str.append(indent(f'for {decl.name} in {decl.typ.exec_str}:', 4*loop_cnt))
             loop_cnt += 1
         for rule in self.rules:
@@ -1272,11 +1219,19 @@ class MurphiProtocol:
         for var_decl in self.vars:
             var_decl.elaborate(self)
             if isinstance(var_decl.typ, ArrayType):
-                self.full_vars.add((f'{var_decl.name}[{i}]', f'{var_decl.name}_[{i}]') for i in eval(var_decl.typ.idx_typ.exec_str))
+                self.full_vars |= self.traverse_array_types(var_decl.name, var_decl.typ)
             elif isinstance(var_decl.typ, RecordType):
-                self.full_vars.add((f'{var_decl.name}.{attr}', f'{var_decl.name}_.{attr}') for attr in var_decl.typ.attrs.keys())
+                typ_name = get_atom_type(var_decl.typ)
+                for attr in var_decl.typ.attrs.keys():
+                    self.full_vars.add((f'{typ_name}.{attr}({var_decl.name})', f'{typ_name}.{attr}({var_decl.name}_)'))
             else:
                 self.full_vars.add((var_decl.name, f'{var_decl.name}_'))
+
+        full_vars_exec_str = ['full_vars = [']
+        for (var, var_prime) in self.full_vars:
+            full_vars_exec_str.append(f'    ({var}, {var_prime}),')
+        full_vars_exec_str.append(']')
+        self.full_vars_exec_str = '\n'.join(full_vars_exec_str)
 
         # Elaboration
         for decl in self.decls:
@@ -1310,6 +1265,7 @@ class MurphiProtocol:
                 inv_exec_str.append('\n')
             else:
                 if isinstance(decl, MurphiRule):
+                    prot_exec_str.append(f'# rule {decl.name}')
                     prot_exec_str.append(f'{prot_decl_collector_name}_{decl.name} = []')
                 prot_exec_str.append(decl.exec_str)
                 prot_exec_str.append('\n')
@@ -1366,6 +1322,29 @@ class MurphiProtocol:
                 f'{repr(self.decls)}'
                 f')')
 
+    def traverse_array_types(self, name, typ: ArrayType) -> set[(str, str)]:
+        exec_str = set()
+        ele_typ = typ.ele_typ
+        while isinstance(ele_typ, VarType):
+            if ele_typ.name in self.typ_map:
+                ele_typ = self.typ_map[ele_typ.name]
+            else:
+                ele_typ = self.var_map[ele_typ.name]
+        if isinstance(ele_typ, ArrayType):
+            typ_pairs = self.traverse_array_types(name, ele_typ)
+            for i in eval(typ.idx_typ.exec_str):
+                for (t, t_prime) in typ_pairs:
+                    exec_str.add((f'{t}[{i}]', f'{t_prime}[{i}]'))
+        elif isinstance(ele_typ, RecordType):
+            typ_name = get_atom_type(typ)
+            for i in eval(typ.idx_typ.exec_str):
+                for attr in ele_typ.attrs.keys():
+                    exec_str.add((f'{typ_name}.{attr}({name}[{i}])', f'{typ_name}.{attr}({name}_[{i}])'))
+        else:
+            for i in eval(typ.idx_typ.exec_str):
+                exec_str.add((f'{name}[{i}]', f'{name}_[{i}]'))
+        return exec_str
+
     def to_z3(self):
         var_collector = ''
         for var_name, typ in self.var_map.items():
@@ -1403,6 +1382,8 @@ class MurphiProtocol:
                           f'{var_collector}\n'
                           f'# get z3 expression of primes\n'
                           f'{var_prime_collector}\n\n'
+                          f'# full vars with attributes\n'
+                          f'{self.full_vars_exec_str}\n\n'
                           f'# rule declarations\n'
                           f'{self.prot_exec_str}\n'
                           f'# start state declarations\n'
