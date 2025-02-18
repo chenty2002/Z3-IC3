@@ -261,7 +261,7 @@ if __name__ == "__main__":
         else:
             lex_tree = parse_file(name)
             assert isinstance(lex_tree, MurphiProtocol)
-            solver = PDR(*lex_tree.to_z3(), debug=True)
+            solver = PDR(*lex_tree.to_z3(name), debug=False)
             solver.run()
     else:
         name = 'Mutual'

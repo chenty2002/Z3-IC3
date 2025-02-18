@@ -3,20 +3,26 @@
 #   Invariant: prot_decl_collector_name
 #   RuleSet: ruleset_collector_cnt
 # ]
-inv_collector_name = '__inv'
+atom_inv_collector_name = '__atom_invs'
+inv_prime_collector_name = '__inv_prime'
 
 # RuleSet Level
 # list[prot_decl_collector_name]
-ruleset_collector_name = '__ruleset'
-for_cmd_collector_name = '__for_cmd'
+ruleset_init_collector_name = '__ruleset_init'
+atom_rule_collector_name = '__atom_rules'
+rule_cmds_collector_name = '__rule_cmds'
+rule_others_collector_name = '__rule_others'
+
+for_cmd_collector_name = '__for_cmds'
 for_cmd_used_var_collector_name = '__for_cmd_used_vars'
-if_cmd_collector_name = '__if_cmd'
+
+if_cmd_collector_name = '__if_cmds'
 if_cmd_used_var_collector_name = '__if_cmd_used_vars'
 branch_collector_name = '__if_branch'
 branch_used_var_collector_name = '__if_branch_used_vars'
-for_expr_collector_name = '__for_expr'
-prot_decl_collector_name = '__prot_decl'
-rule_collector_name = '__rule'
+
+for_expr_collector_name = '__for_exprs'
+prot_decl_collector_name = '__prot_decls'
 rule_used_var_collector_name = '__rule_used_vars'
 obligation_collector_name = '__obligation'
 
