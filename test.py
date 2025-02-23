@@ -1,6 +1,9 @@
 #!/usr/bin/python
 from z3 import *
+
+from bfs import BFS
 from pdr import PDR
+from dfs import DFS
 from bmc import BMC
 from murphi import MurphiProtocol
 from murphiparser import parse_file
@@ -245,6 +248,7 @@ def listTests():
 
 if __name__ == "__main__":
     import argparse
+    import time
 
     parser = argparse.ArgumentParser(description="Run tests examples on the PDR algorithm")
     parser.add_argument('-ls', action='store_true')
@@ -263,6 +267,14 @@ if __name__ == "__main__":
             assert isinstance(lex_tree, MurphiProtocol)
             solver = PDR(*lex_tree.to_z3(name), debug=False)
             solver.run()
+            solver = DFS(*lex_tree.to_z3(name), debug=False)
+            # t = time.time()
+            solver.dfs()
+            # print(time.time() - t)
+            solver = BFS(*lex_tree.to_z3(name), debug=False)
+            # t = time.time()
+            solver.bfs()
+            # print(time.time() - t)
     else:
         name = 'Mutual'
         print("=========== Running test", name, "===========")
