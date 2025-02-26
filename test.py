@@ -2,6 +2,7 @@
 from z3 import *
 
 from bfs import BFS
+from inductive_aux_inv import InductiveAuxSolver
 from pdr import PDR
 from dfs import DFS
 from bmc import BMC
@@ -265,15 +266,24 @@ if __name__ == "__main__":
         else:
             lex_tree = parse_file(name)
             assert isinstance(lex_tree, MurphiProtocol)
-            solver = PDR(*lex_tree.to_z3(name), debug=False)
+            pre_processing = lex_tree.to_z3(name)
+
+            solver = PDR(*pre_processing, debug=False)
+            t = time.time()
             solver.run()
-            solver = DFS(*lex_tree.to_z3(name), debug=False)
+            print(time.time() - t)
+
+            solver = InductiveAuxSolver(*pre_processing, debug=False)
+            t = time.time()
+            solver.run()
+            print(time.time() - t)
+            # solver = DFS(*lex_tree.to_z3(name), debug=False)
             # t = time.time()
-            solver.dfs()
+            # solver.dfs()
             # print(time.time() - t)
-            solver = BFS(*lex_tree.to_z3(name), debug=False)
+            # solver = BFS(*lex_tree.to_z3(name), debug=False)
             # t = time.time()
-            solver.bfs()
+            # solver.bfs()
             # print(time.time() - t)
     else:
         name = 'Mutual'

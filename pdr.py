@@ -4,6 +4,11 @@ from solver import *
 class PDR(ProtSolver):
     def __init__(self, literals, primes, init, trans, post, post_prime, debug):
         super().__init__(literals, primes, init, trans, post, post_prime, debug)
+        self.property = simplify(And(*post))
+        trans_list = []
+        for (cond, cmds, others) in trans:
+            trans_list.append(And(cond, cmds, others))
+        self.trans = simplify(Or(*trans_list))
 
     def run(self):
         self.frames = list()

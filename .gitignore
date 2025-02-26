@@ -66,3 +66,6 @@ target/
 
 exec_str*
 prompt
+*.txt
+*.cpp
+*.o

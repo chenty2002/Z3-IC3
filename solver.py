@@ -1,5 +1,3 @@
-from queue import Queue
-
 from z3 import *
 
 
@@ -89,57 +87,6 @@ class State:
         return hash(self.vals)
 
 
-def obligation_in_list(o, o_list):
-    for o_ in o_list:
-        if eq(o, o_):
-            return True
-    return False
-
-
-def generalize(s, model):
-    all_vars = [decl() for decl in model.decls()]
-    all_vars = list(filter(lambda variable: '\'' not in str(variable), all_vars))
-
-    essential_vars = []
-    for var in all_vars:
-        new_solver = Solver()
-        new_solver.add(s.assertions())
-        new_solver.add(var == model[var])
-        if new_solver.check() == sat:
-            new_solver = Solver()
-            new_solver.add(s.assertions())
-            new_solver.add(var != model[var])
-            if new_solver.check() == unsat:
-                essential_vars.append(var)
-    return And([var == model[var] for var in essential_vars])
-
-
-def generate_obligation(rule, inv_pair):
-    (cond, cmds, others) = rule
-    (inv, inv_prime) = inv_pair
-    r = And(cond, cmds, others)
-
-    def collect_literals(expr, literals):
-        if expr.num_args() == 0:
-            if expr.decl().kind() == Z3_OP_UNINTERPRETED:
-                literals.add(expr)
-        else:
-            for child in expr.children():
-                collect_literals(child, literals)
-
-    lit = set()
-    rule_lit = set()
-    collect_literals(Or(inv, inv_prime, cond, cmds), lit)
-    collect_literals(r, rule_lit)
-
-    redundant_lit = list(rule_lit - lit)
-
-    if redundant_lit:
-        r = Exists(redundant_lit, r)
-
-    return simplify(And(r, Not(inv_prime), inv))
-
-
 class ProtSolver(object):
     def __init__(self, literals, primes, init, trans, post, post_prime, debug):
         self.debug = debug
@@ -153,28 +100,6 @@ class ProtSolver(object):
         self.frames = []
         self.primeMap = [(from_, to_) for from_, to_ in zip(literals, primes)]
         self.lMap = {str(literal): literal for literal in literals} | {str(literal): literal for literal in primes}
-        self.enforce_obligation()
-
-    def enforce_obligation(self):
-        queue = Queue()
-        for p in self.property:
-            queue.put(p)
-            print(f'queue.put: {p[0]}')
-        while not queue.empty():
-            inv_pair = queue.get()
-            for rule in self.trans:
-                o = generate_obligation(rule, inv_pair)
-                s = Solver()
-                s.add(o)
-                if s.check() == sat:
-                    model = s.model()
-                    g = generalize(s, model)
-                    obligation = simplify(Not(g))
-                    if not obligation_in_list(obligation, self.aux_invs):
-                        self.aux_invs.append(obligation)
-                        next_state = substitute(obligation, self.primeMap)
-                        queue.put((obligation, next_state))
-                        print(f'queue.put: {obligation}')
 
     def run(self):
         pass
