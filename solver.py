@@ -1,4 +1,5 @@
 from z3 import *
+from logger import *
 
 
 # a cube is a conjunction of literals associated with a given frame (t) in the trace
@@ -22,21 +23,24 @@ class Cube(object):
 
 def get_vals(expr: BoolRef):
     vals = set()
-    for rule_e in expr.children():
-        if rule_e.decl().name() == '=':
-            lhs, rhs = rule_e.children()
-            if lhs.decl().kind() == Z3_OP_UNINTERPRETED:
-                vals.add((lhs, rhs))
-            elif rhs.decl().kind() == Z3_OP_UNINTERPRETED:
-                vals.add((rhs, lhs))
+    op = expr.decl().name()
+    if op == '=':
+        lhs, rhs = expr.children()
+        if lhs.decl().kind() == Z3_OP_UNINTERPRETED or lhs.decl().kind() == Z3_OP_DT_ACCESSOR:
+            vals.add((lhs, rhs))
+        elif rhs.decl().kind() == Z3_OP_UNINTERPRETED or rhs.decl().kind() == Z3_OP_DT_ACCESSOR:
+            vals.add((rhs, lhs))
         else:
-            assert len(rule_e.children()) < 2
-            if len(rule_e.children()) == 0:
-                vals.add((rule_e, BoolVal(True)))
-            else:
-                v_list = rule_e.children()
-                assert len(v_list) == 1
-                vals.add((v_list[0], BoolVal(False)))
+            assert False
+    elif op == 'and':
+        for child in expr.children():
+            vals |= get_vals(child)
+    elif op == 'not':
+        assert len(expr.children()) == 1
+        vals.add((expr.children()[0], BoolVal(False)))
+    else:
+        assert len(expr.children()) == 0
+        vals.add((expr, BoolVal(True)))
     return frozenset(vals)
 
 
@@ -81,25 +85,35 @@ class State:
         return isinstance(other, State) and simplify(self.cur).eq(simplify(other.cur))
 
     def __hash__(self):
-        return hash(self.vals)
+        return hash(self.cur)
 
     def hash(self):
-        return hash(self.vals)
+        return hash(self.cur)
 
 
 class ProtSolver(object):
-    def __init__(self, literals, primes, init, trans, post, post_prime, debug):
+    def __init__(self, literals, primes, init, trans, post, post_prime, full_vars, var_cons, debug):
         self.debug = debug
         self.init = init
-        self.trans = [(simplify(cond), simplify(cmds), simplify(others)) for (cond, cmds, others) in trans]
+        self.trans = [(name, simplify(cond), simplify(cmds), simplify(others)) for (name, cond, cmds, others) in trans]
         self.literals = literals
-        prop = [simplify(p) for p in post]
-        prop_prime = [simplify(p) for p in post_prime]
-        self.aux_invs = []
-        self.property = (list(zip(prop, prop_prime)))
+        self.property = []
+        for ((p_name, p), (p_name_prime, p_prime)) in zip(post, post_prime):
+            assert p_name == p_name_prime
+            self.property.append((p_name, p, p_prime))
         self.frames = []
-        self.primeMap = [(from_, to_) for from_, to_ in zip(literals, primes)]
+        self.prime_tuples = [(from_, to_) for from_, to_ in zip(literals, primes)]
+        self.prime_map = {from_: to_ for from_, to_ in zip(literals, primes)}
         self.lMap = {str(literal): literal for literal in literals} | {str(literal): literal for literal in primes}
+        self.full_var2prime = {var: var_prime for var, var_prime in full_vars}
+        self.full_prime2var = {var_prime: var for var, var_prime in full_vars}
+        self.var_cons = var_cons
 
     def run(self):
         pass
+
+
+if __name__ == '__main__':
+    x = Bool('x')
+    y = Bool('y')
+    get_vals(Not(x == y))

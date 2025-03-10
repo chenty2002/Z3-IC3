@@ -26,6 +26,8 @@ def get_atom_type(expr) -> str:
         return get_atom_type(expr.v)
     elif isinstance(expr, ArrayIndex):
         return get_atom_type(expr.v)
+    elif isinstance(expr, RecordType):
+        return expr.typ_name
     return expr.exec_str
 
 
@@ -1052,7 +1054,7 @@ class MurphiRule(ProtDecl):
         exec_str.append(f'for (var, var_) in __unused_vars_{self.name}:')
         exec_str.append(f'    {rule_others_collector_name}_{self.name}.append(var_ == var)')
         exec_str.append(f'{prot_decl_collector_name}_{self.name}.append('
-                        f'({self.cond.exec_str}, And(*{rule_cmds_collector_name}_{self.name}), And(*{rule_others_collector_name}_{self.name}))'
+                        f'(\'{self.name}\', {self.cond.exec_str}, And(*{rule_cmds_collector_name}_{self.name}), And(*{rule_others_collector_name}_{self.name}))'
                         f')')
         self.exec_str = '\n'.join(exec_str)
         return self
@@ -1085,9 +1087,9 @@ class MurphiInvariant(ProtDecl):
             collector = f'{prot_decl_collector_name}_{self.name}'
         if isinstance(self.inv.exec_str, list) and len(self.inv.exec_str) == 2:
             self.exec_str = (f'{self.inv.exec_str[0]}'
-                             f'    {collector}.append({self.inv.exec_str[1]})')
+                             f'    {collector}.append((\'{self.name}\', {self.inv.exec_str[1]}))')
         else:
-            self.exec_str = f'{collector}.append({self.inv.exec_str})'
+            self.exec_str = f'{collector}.append((\'{self.name}\', {self.inv.exec_str}))'
         return self
 
 
@@ -1167,6 +1169,9 @@ class MurphiProtocol:
         self.var_map_prime = dict()
         obligation = False
 
+        # z3_var : range
+        self.var_with_cons = {}
+
         # Process types
         for typ_decl in self.types:
             typ_decl.elaborate(self)
@@ -1187,13 +1192,25 @@ class MurphiProtocol:
 
         for var_decl in self.vars:
             var_decl.elaborate(self)
-            if isinstance(var_decl.typ, ArrayType):
-                self.full_vars |= self.traverse_array_types(var_decl.name, var_decl.typ)
-            elif isinstance(var_decl.typ, RecordType):
-                typ_name = get_atom_type(var_decl.typ)
-                for attr in var_decl.typ.attrs.keys():
+            var_decl_typ = var_decl.typ
+            while isinstance(var_decl_typ, VarType):
+                if var_decl_typ.name in self.typ_map:
+                    var_decl_typ = self.typ_map[var_decl_typ.name]
+                else:
+                    var_decl_typ = self.var_map[var_decl_typ.name]
+            if isinstance(var_decl_typ, ArrayType):
+                self.full_vars |= self.traverse_array_types(var_decl.name, var_decl_typ)
+            elif isinstance(var_decl_typ, RecordType):
+                typ_name = get_atom_type(var_decl_typ)
+                for (attr, typ) in var_decl_typ.attrs.items():
+                    if isinstance(typ, VarType) and isinstance(typ.typ, RngType):
+                        self.var_with_cons[f'{typ_name}.{attr}({var_decl.name})'] = typ.exec_str
+                        self.var_with_cons[f'{typ_name}.{attr}({var_decl.name}_)'] = typ.exec_str
                     self.full_vars.add((f'{typ_name}.{attr}({var_decl.name})', f'{typ_name}.{attr}({var_decl.name}_)'))
             else:
+                if isinstance(var_decl_typ, RngType):
+                    self.var_with_cons[var_decl.name] = var_decl_typ.exec_str
+                    self.var_with_cons[f'{var_decl.name}_'] = var_decl_typ.exec_str
                 self.full_vars.add((var_decl.name, f'{var_decl.name}_'))
 
         full_vars_exec_str = ['full_vars = [']
@@ -1201,6 +1218,13 @@ class MurphiProtocol:
             full_vars_exec_str.append(f'    ({var}, {var_prime}),')
         full_vars_exec_str.append(']')
         self.full_vars_exec_str = '\n'.join(full_vars_exec_str)
+
+        var_with_cons_exec_str = ['var_constraints = {']
+        for var, cons in self.var_with_cons.items():
+            assert cons.startswith('range')
+            var_with_cons_exec_str.append(f'    {var}: {cons},')
+        var_with_cons_exec_str.append('}')
+        self.var_with_cons_exec_str = '\n'.join(var_with_cons_exec_str)
 
         # Elaboration
         for decl in self.decls:
@@ -1314,10 +1338,16 @@ class MurphiProtocol:
         elif isinstance(ele_typ, RecordType):
             typ_name = get_atom_type(typ)
             for i in eval(typ.idx_typ.exec_str):
-                for attr in ele_typ.attrs.keys():
+                for (attr, typ) in ele_typ.attrs.items():
+                    if isinstance(typ, VarType) and isinstance(typ.typ, RngType):
+                        self.var_with_cons[f'{typ_name}.{attr}({name}[{i}])'] = typ.exec_str
+                        self.var_with_cons[f'{typ_name}.{attr}({name}_[{i}])'] = typ.exec_str
                     exec_str.add((f'{typ_name}.{attr}({name}[{i}])', f'{typ_name}.{attr}({name}_[{i}])'))
         else:
             for i in eval(typ.idx_typ.exec_str):
+                if isinstance(ele_typ, RngType):
+                    self.var_with_cons[f'{name}[{i}]'] = ele_typ.exec_str
+                    self.var_with_cons[f'{name}_[{i}]'] = ele_typ.exec_str
                 exec_str.add((f'{name}[{i}]', f'{name}_[{i}]'))
         return exec_str
 
@@ -1364,22 +1394,6 @@ class MurphiProtocol:
             else:
                 var_prime_collector += f'primes.append({var_name})\n'
 
-        # Transforming all the model transitions into one single 'Or' expression
-
-        # trans_collector = []
-        # for decl in self.decls:
-        #     if decl.is_startstate or decl.is_invariant:
-        #         continue
-        #     if isinstance(decl, MurphiRule):
-        #         trans_collector.append(f'*{prot_decl_collector_name}_{decl.name}')
-        #     elif isinstance(decl, MurphiRuleSet):
-        #         trans_collector.append(f'*{ruleset_collector_name}_{decl.cnt}')
-        #     else:
-        #         raise NotImplementedError
-        # trans_str = ', '.join(trans_collector)
-        # trans_exec = f'trans = simplify(Or({trans_str}))'
-        # inv_exec = f'post = simplify(And({inv_collector_name}))'
-
         # Transforming model transitions into lists with separated rule expressions
         trans_exec = f'trans = {atom_rule_collector_name}'
         inv_exec = f'post = {atom_inv_collector_name}'
@@ -1397,6 +1411,8 @@ class MurphiProtocol:
                           f'{var_prime_collector}\n\n'
                           f'# full vars with attributes\n'
                           f'{self.full_vars_exec_str}\n\n'
+                          f'# constraints of variables\n'
+                          f'{self.var_with_cons_exec_str}\n\n'
                           f'# start state declarations\n'
                           f'{self.init_exec_str}\n\n'
                           f'# invariant declarations\n'
@@ -1410,7 +1426,7 @@ class MurphiProtocol:
                           f'# get z3 expression of invariants\n'
                           f'{inv_exec}\n'
                           )
-        print(to_z3_exec_str)
+        # print(to_z3_exec_str)
         with open(f'exec_str_{prot}.py', 'w') as f:
             f.write('from z3 import *\n\n\n')
             f.write('variables = []\n')
@@ -1424,6 +1440,9 @@ class MurphiProtocol:
         trans = global_vars['trans']
         post = global_vars['post']
         post_prime = global_vars['post_prime']
+
+        full_vars = global_vars['full_vars']
+        var_constraints = global_vars['var_constraints']
         with open(f'exec_str_{prot}.py', 'a') as f:
             set_option(max_depth=99999, max_lines=99999, max_args=99999)
             f.write('\'\'\'\n')
@@ -1434,7 +1453,7 @@ class MurphiProtocol:
             f.write(f'post = \n{post}\n\n')
             f.write(f'post_prime = \n{post_prime}\n\n')
             f.write('\'\'\'\n')
-        return variables, primes, init, trans, post, post_prime
+        return variables, primes, init, trans, post, post_prime, full_vars, var_constraints
 
 
 # trans:

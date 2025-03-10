@@ -69,3 +69,5 @@ prompt
 *.txt
 *.cpp
 *.o
+
+z3_para_protocol
