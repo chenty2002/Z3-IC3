@@ -142,7 +142,7 @@ class MurphiTransformer(Transformer):
 
 
 def parse_file(filename):
-    with open("grammar.lark", "r") as file_lark:
+    with open("./src/grammar.lark", "r") as file_lark:
         grammar = file_lark.read()
         murphi_parser = Lark(grammar, start='protocol', parser='lalr', transformer=MurphiTransformer())
         with open(filename, 'r') as file:
@@ -150,9 +150,7 @@ def parse_file(filename):
 
 
 if __name__ == '__main__':
-    file_name = "mutualEx.m"
-    # prot = parse_file(parse_path+parse_name+'.m', ivyselect, smvSelect)
+    file_name = "../mutual/mutualEx.m"
     lex_tree = parse_file(file_name)
     assert isinstance(lex_tree, murphi.MurphiProtocol)
-    lex_tree.to_z3()
-
+    lex_tree.to_z3(file_name)

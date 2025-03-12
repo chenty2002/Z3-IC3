@@ -2,8 +2,8 @@ from solver import *
 
 
 class DFS(ProtSolver):
-    def __init__(self, literals, primes, init, trans, post, post_prime, debug):
-        super().__init__(literals, primes, init, trans, post, post_prime, debug)
+    def __init__(self, literals, primes, init, trans, post, post_prime, full_vars, debug):
+        super().__init__(literals, primes, init, trans, post, post_prime, full_vars, debug)
         self.reachable = []
         self.init_state = State(self.init, self.literals)
         self.visited = set()
@@ -20,7 +20,7 @@ class DFS(ProtSolver):
         for (cond, cmds, others) in self.trans:
             if cur.satisfies(cond):
                 next_state = copy.deepcopy(cur)
-                next_state.apply(simplify(And(cmds, others)), self.primeMap)
+                next_state.apply(simplify(And(cmds, others)), self.prime_tuples)
                 if self.debug:
                     print(f'applying rule: {cond, cmds, others}')
                     print(f'new state: {next_state.cur}')

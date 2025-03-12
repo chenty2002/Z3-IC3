@@ -274,9 +274,9 @@ if __name__ == "__main__":
             # print(time.time() - t)
 
             solver = InductiveAuxSolver(*pre_processing, debug=False)
-            # t = time.time()
+            t = time.time()
             solver.run()
-            # print(time.time() - t)
+            print(time.time() - t)
             # solver = DFS(*lex_tree.to_z3(name), debug=False)
             # t = time.time()
             # solver.dfs()

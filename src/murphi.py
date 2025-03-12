@@ -180,6 +180,12 @@ class BooleanType(MurphiType):
 
 
 class ScalarSetType(MurphiType):
+    def __new__(cls, *args, **kwargs):
+        assert len(args) == 1
+        assert isinstance(args[0], str)
+        const_name = args[0]
+        return RngType('1', const_name)
+
     def __init__(self, const_name: str):
         super().__init__()
         assert isinstance(const_name, str)

@@ -51,7 +51,7 @@ class PDR(ProtSolver):
             s = Solver()
             s.add(self.trans)
             s.add(frame)
-            s.add(Not(substitute(frame, self.primeMap)))
+            s.add(Not(substitute(frame, self.prime_tuples)))
             if s.check() == unsat:
                 return frame
         return None
@@ -105,7 +105,7 @@ class PDR(ProtSolver):
 
     # for cube, check if cube is blocked by R[t-1] AND trans
     def solveRelative(self, cube):
-        cubeprime = substitute(cube.cube(), self.primeMap)
+        cubeprime = substitute(cube.cube(), self.prime_tuples)
         s = Solver()
         s.add(self.frames[cube.frame_index - 1])
         s.add(self.trans)

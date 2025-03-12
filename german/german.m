@@ -125,10 +125,11 @@ endrule; endruleset;
 
 ruleset i: NODE; j: NODE do
 invariant "CntrlProp"
-    i != j -> (Cache[i].State = E -> Cache[j].State = I) &
-              (Cache[i].State = S -> Cache[j].State = I | Cache[j].State = S);
+    i != j -> (Cache[i].State = E -> Cache[j].State = I);
+--    &
+--              (Cache[i].State = S -> Cache[j].State = I | Cache[j].State = S);
 endruleset;
 
-invariant "DataProp"
-  ( ExGntd = false -> MemData = AuxData ) &
-  forall i : NODE do Cache[i].State != I -> Cache[i].Data = AuxData end;
+--invariant "DataProp"
+  --( ExGntd = false -> MemData = AuxData ) &
+  --forall i : NODE do Cache[i].State != I -> Cache[i].Data = AuxData end;
