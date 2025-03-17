@@ -201,27 +201,33 @@ class InductiveAuxSolver(ProtSolver):
                 # logging.debug(f'for rule {rule[0]}: cond = {rule[1]}, cmds = {rule[2]}')
                 # logging.debug(f'generating obligation: {o}')
 
-                constraints = self.get_constraints(o)
-                o = And(o, constraints)
-                # logging.debug(f'constraints: {constraints}')
-                # logging.debug(f'obligation with constraints: {o}')
-                s = Solver()
-                s.add(o)
-                if s.check() == sat:
-                    model = s.model()
-                    g = generalize(s, model, self.prot_str)
-                    if g is None:
-                        continue
-                    # logging.info(f'getting cex: {model}')
-                    # logging.info(f'generalized: {g}')
-                    obligation = simplify(g)
-                    if not obligation_in_list(obligation, self.aux_cex):
-                        cex_name = f'{rule[0]} - {cex_pair[0]}'
-                        self.aux_cex.append((cex_name, obligation))
-                        next_state = substitute(obligation, self.prime_tuples)
-                        cex_queue.put((cex_name, obligation, next_state))
-                        logging.debug(f'appending cex {cex_name}')
-                        logging.debug(f'aux_cex: {self.aux_cex}')
+                while True:
+                    constraints = self.get_constraints(o)
+                    o = And(o, constraints)
+                    # logging.debug(f'constraints: {constraints}')
+                    # logging.debug(f'obligation with constraints: {o}')
+                    s = Solver()
+                    s.add(o)
+                    if self.aux_cex:
+                        cexs = [Not(cex[1]) for cex in self.aux_cex]
+                        s.add(And(*cexs))
+                    if s.check() == unsat:
+                        break
+                    else:
+                        model = s.model()
+                        g = generalize(s, model, self.prot_str)
+                        if g is None:
+                            break
+                        # logging.info(f'getting cex: {model}')
+                        # logging.info(f'generalized: {g}')
+                        obligation = simplify(g)
+                        if not obligation_in_list(obligation, self.aux_cex):
+                            cex_name = f'{rule[0]} - {cex_pair[0]}'
+                            self.aux_cex.append((cex_name, obligation))
+                            next_state = substitute(obligation, self.prime_tuples)
+                            cex_queue.put((cex_name, obligation, next_state))
+                            logging.debug(f'appending cex {cex_name}')
+                            logging.debug(f'aux_cex: {self.aux_cex}')
 
     def run(self):
         self.enforce_obligation()
