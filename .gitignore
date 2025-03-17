@@ -71,3 +71,5 @@ prompt
 *.o
 
 z3_para_protocol
+murphi_gen
+murphi

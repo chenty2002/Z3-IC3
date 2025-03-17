@@ -92,15 +92,12 @@ class State:
 
 
 class ProtSolver(object):
-    def __init__(self, literals, primes, init, trans, post, post_prime, full_vars, var_cons, debug):
+    def __init__(self, literals, primes, init, trans, post, post_prime, full_vars, var_cons, prot, debug):
         self.debug = debug
         self.init = init
         self.trans = [(name, simplify(cond), simplify(cmds), simplify(others)) for (name, cond, cmds, others) in trans]
         self.literals = literals
-        self.property = []
-        for ((p_name, p), (p_name_prime, p_prime)) in zip(post, post_prime):
-            assert p_name == p_name_prime
-            self.property.append((p_name, p, p_prime))
+        self.property = [(p_name, p, p_prime) for ((p_name, p), (_, p_prime)) in list(zip(post, post_prime))]
         self.frames = []
         self.prime_tuples = [(from_, to_) for from_, to_ in zip(literals, primes)]
         self.prime_map = {from_: to_ for from_, to_ in zip(literals, primes)}
@@ -108,6 +105,7 @@ class ProtSolver(object):
         self.full_var2prime = {var: var_prime for var, var_prime in full_vars}
         self.full_prime2var = {var_prime: var for var, var_prime in full_vars}
         self.var_cons = var_cons
+        self.prot_str = prot
 
     def run(self):
         pass

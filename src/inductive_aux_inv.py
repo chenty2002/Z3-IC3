@@ -2,6 +2,8 @@ from itertools import combinations
 from queue import Queue
 
 from solver import *
+from utils import z3_inv_to_murphi
+from generalize_murphi import check_murphi, murphi_check_init
 
 
 def obligation_in_list(o, o_list):
@@ -69,20 +71,57 @@ def make_equation_list(model, vars):
     return equations
 
 
-def generalize(s, model):
+# def generalize(s, model):
+#     all_vars = [decl() for decl in model.decls()]
+#     filtered_vars = list(filter(lambda variable: '\'' not in str(variable), all_vars))
+#     attr_list = make_equation_list(model, filtered_vars)
+#     return And(*list(attr_list.values()))
+#
+#     essential_vars = []
+#     for var, equation in attr_list.items():
+#         new_solver = Solver()
+#         new_solver.add(s.assertions())
+#         new_solver.add(Not(equation))
+#         if new_solver.check() == unsat:
+#             essential_vars.append(var)
+#     return And(*[attr_list[var] for var in essential_vars])
+
+
+visited = {}
+
+
+def generalize(s, model, prot):
     all_vars = [decl() for decl in model.decls()]
     filtered_vars = list(filter(lambda variable: '\'' not in str(variable), all_vars))
     attr_list = make_equation_list(model, filtered_vars)
-    # return And([var == model[var] for var in filtered_vars])
+    eq_tuple = tuple(attr_list.values())
+    len_eqs = len(eq_tuple)
 
-    essential_vars = []
-    for var, equation in attr_list.items():
-        new_solver = Solver()
-        new_solver.add(s.assertions())
-        new_solver.add(Not(equation))
-        if new_solver.check() == unsat:
-            essential_vars.append(var)
-    return And(*[attr_list[var] for var in essential_vars])
+    if len_eqs < 2:
+        if eq_tuple in visited:
+            assert visited[eq_tuple]
+        else:
+            visited[eq_tuple] = True
+        return And(*eq_tuple)
+
+    for length in range(1, len_eqs):
+        subset = combinations(eq_tuple, length)
+        for eqs in subset:
+            if eqs in visited:
+                if visited[eqs]:
+                    return None
+                continue
+            if check_generalized_by_murphi(eqs, prot):
+                visited[eqs] = True
+                return And(*eqs)
+            visited[eqs] = False
+    visited[eq_tuple] = True
+    return And(*eq_tuple)
+
+
+def check_generalized_by_murphi(eqs, prot):
+    murphi_str = prot + z3_inv_to_murphi(eqs)
+    return check_murphi(murphi_str)
 
 
 def collect_literals(expr, literals):
@@ -120,17 +159,23 @@ def generate_obligation(rule, cex_pair, var2prime, prime2var):
         else:
             others_literals.add(var == prime2var[var])
 
+    if extra_literals == inv_literals:
+        return None
     return simplify(And(r, And(*others_literals), Not(inv_prime), inv))
 
 
 class InductiveAuxSolver(ProtSolver):
-    def __init__(self, literals, primes, init, trans, post, post_prime, full_vars, var_cons, debug):
-        super().__init__(literals, primes, init, trans, post, post_prime, full_vars, var_cons, debug)
+    def __init__(self, literals, primes, init, trans, post, post_prime, full_vars, var_cons, prot, debug):
+        super().__init__(literals, primes, init, trans, post, post_prime, full_vars, var_cons, prot, debug)
         self.aux_cex = []
 
     def get_constraints(self, expr):
+        if len(self.var_cons) == 0:
+            return True
         used_vars = set()
         collect_literals(expr, used_vars)
+        if len(used_vars) == 0:
+            return True
         constraints = []
         for var in used_vars:
             if var in self.var_cons:
@@ -140,30 +185,35 @@ class InductiveAuxSolver(ProtSolver):
         return And(*constraints)
 
     def enforce_obligation(self):
+        murphi_check_init()
         cex_queue = Queue()
         for p in self.property:
             cex_queue.put((p[0], Not(p[1]), Not(p[2])))
-            logging.debug(f'queue.put {p[0]}: {Not(p[1])}')
+            # logging.debug(f'queue.put {p[0]}: {Not(p[1])}')
         while not cex_queue.empty():
             # cex_pair = (name, cex, cex')
             cex_pair = cex_queue.get()
             for rule in self.trans:
                 o = generate_obligation(rule, cex_pair, self.full_var2prime, self.full_prime2var)
-                logging.debug(f'currently checking {cex_pair[0]}: {simplify(Not(cex_pair[1]))}')
-                logging.debug(f'for rule {rule[0]}: cond = {rule[1]}, cmds = {rule[2]}')
-                logging.debug(f'generating obligation: {o}')
+                if o is None:
+                    continue
+                # logging.debug(f'currently checking {cex_pair[0]}: {simplify(Not(cex_pair[1]))}')
+                # logging.debug(f'for rule {rule[0]}: cond = {rule[1]}, cmds = {rule[2]}')
+                # logging.debug(f'generating obligation: {o}')
 
                 constraints = self.get_constraints(o)
                 o = And(o, constraints)
-                logging.debug(f'constraints: {constraints}')
-                logging.debug(f'obligation with constraints: {o}')
+                # logging.debug(f'constraints: {constraints}')
+                # logging.debug(f'obligation with constraints: {o}')
                 s = Solver()
                 s.add(o)
                 if s.check() == sat:
                     model = s.model()
-                    g = generalize(s, model)
-                    logging.info(f'getting cex: {model}')
-                    logging.info(f'generalized: {g}')
+                    g = generalize(s, model, self.prot_str)
+                    if g is None:
+                        continue
+                    # logging.info(f'getting cex: {model}')
+                    # logging.info(f'generalized: {g}')
                     obligation = simplify(g)
                     if not obligation_in_list(obligation, self.aux_cex):
                         cex_name = f'{rule[0]} - {cex_pair[0]}'
@@ -175,10 +225,12 @@ class InductiveAuxSolver(ProtSolver):
 
     def run(self):
         self.enforce_obligation()
+        # invs = '\n'.join([f'{name}: \n{Not(expr)}' for (name, expr) in self.aux_cex])
+        # logging.info('Invariants before generalization:')
+        # logging.info(f'{invs}')
+        # self.aux_cex = generalize_list(self.aux_cex)
         invs = '\n'.join([f'{name}: \n{Not(expr)}' for (name, expr) in self.aux_cex])
-        logging.info('Invariants before generalization:')
-        logging.info(f'{invs}')
-        self.aux_cex = generalize_list(self.aux_cex)
-        invs = '\n'.join([f'{name}: \n{Not(expr)}' for (name, expr) in self.aux_cex])
+        print('Inductive Invariant:')
+        print(f'{invs}')
         logging.info('Inductive Invariant:')
         logging.info(f'{invs}')

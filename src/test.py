@@ -6,7 +6,7 @@ from inductive_aux_inv import InductiveAuxSolver
 from pdr import PDR
 from dfs import DFS
 from bmc import BMC
-from murphi import MurphiProtocol
+from murphi import MurphiProtocol, to_murphi
 from murphiparser import parse_file
 
 
@@ -273,7 +273,7 @@ if __name__ == "__main__":
             # solver.run()
             # print(time.time() - t)
 
-            solver = InductiveAuxSolver(*pre_processing, debug=False)
+            solver = InductiveAuxSolver(*pre_processing, prot=to_murphi(lex_tree), debug=False)
             t = time.time()
             solver.run()
             print(time.time() - t)

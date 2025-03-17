@@ -86,6 +86,9 @@ class MurphiConstDecl:
     def __eq__(self, other):
         return isinstance(other, MurphiConstDecl) and self.name == other.name and self.val == other.val
 
+    def to_murphi(self):
+        return f'{self.name} : {self.val}'
+
 
 class MurphiType:
     def __init__(self, exec_str=''):
@@ -93,6 +96,9 @@ class MurphiType:
 
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         raise NotImplementedError
+
+    def to_murphi(self):
+        pass
 
 
 class VarType(MurphiType):
@@ -112,6 +118,9 @@ class VarType(MurphiType):
 
     def __hash__(self):
         return hash(self.name)
+
+    def to_murphi(self):
+        return f'{self.name}'
 
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         if self.name in prot.var_map:
@@ -145,6 +154,9 @@ class RngType(MurphiType):
     def __hash__(self):
         return hash((self.downRng, self.upRng))
 
+    def to_murphi(self):
+        return f'{0}..{self.upRng}-{self.downRng}'
+
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         down_str = self.downRng
         for name, val in const_map.items():
@@ -174,6 +186,9 @@ class BooleanType(MurphiType):
 
     def __hash__(self):
         return hash('boolean')
+
+    def to_murphi(self):
+        return 'boolean'
 
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         return
@@ -243,6 +258,10 @@ class EnumType(MurphiType):
     def __hash__(self):
         return hash(tuple(self.names))
 
+    def to_murphi(self):
+        names = ', '.join(self.names)
+        return f'enum {{{names}}}'
+
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         typ_name = kwargs['typ_name']
         names = ', '.join(self.names)
@@ -268,6 +287,9 @@ class ArrayType(MurphiType):
     def __hash__(self):
         return hash((self.idx_typ, self.ele_typ))
 
+    def to_murphi(self):
+        return f'array [{self.idx_typ.to_murphi()}] of {self.ele_typ.to_murphi()}'
+
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         self.idx_typ.elaborate(prot, **kwargs)
         self.ele_typ.elaborate(prot, **kwargs)
@@ -282,7 +304,7 @@ class RecordType(MurphiType):
         self.attrs = {}
 
     def __str__(self):
-        decls = '\n'.join(indent(str(decl), 2) + ';' for decl in self.typ_decls)
+        decls = '\n'.join(indent_str(str(decl), 2) + ';' for decl in self.typ_decls)
         return f'record\n{decls}\nend'
 
     def __repr__(self):
@@ -294,6 +316,10 @@ class RecordType(MurphiType):
 
     def __hash__(self):
         return hash(tuple(map(lambda arg: arg.name, self.typ_decls)))
+
+    def to_murphi(self):
+        decls = ';\n'.join(indent_str(decl.to_murphi(), 4) for decl in self.typ_decls) + ';'
+        return f'record\n{decls}\nend'
 
     def elaborate(self, prot: "MurphiProtocol", **kwargs):
         for typ_decl in self.typ_decls:
@@ -328,6 +354,9 @@ class MurphiTypeDecl:
     def __eq__(self, other):
         return isinstance(other, MurphiTypeDecl) and self.name == other.name and self.typ == other.typ
 
+    def to_murphi(self):
+        return f'{self.name} : {self.typ.to_murphi()}'
+
     def elaborate(self, prot: "MurphiProtocol"):
         self.typ.elaborate(prot, typ_name=self.name)
 
@@ -347,6 +376,9 @@ class MurphiVarDecl:
 
     def __eq__(self, other):
         return isinstance(other, MurphiVarDecl) and self.name == other.name and self.typ == other.typ
+
+    def to_murphi(self):
+        return f'{self.name} : {self.typ.to_murphi()}'
 
     def elaborate(self, prot: "MurphiProtocol", is_prime=False):
         if is_prime:
@@ -394,6 +426,9 @@ class BaseExpr:
         self.exec_str: str | list[str] = exec_str
         self.loop_var: bool = False
         self.prime_pair: (str, str) = (exec_str, exec_str)
+
+    def to_murphi(self):
+        return ''
 
     def priority(self) -> int:
         raise NotImplementedError
@@ -449,6 +484,9 @@ class BooleanExpr(BaseExpr):
     def __eq__(self, other):
         return isinstance(other, BooleanExpr) and self.val == other.val
 
+    def to_murphi(self):
+        return 'true' if self.val else 'false'
+
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
         return self
 
@@ -470,6 +508,9 @@ class EnumValExpr(BaseExpr):
 
     def __eq__(self, other):
         return isinstance(other, EnumValExpr) and self.enum_type == other.enum_type and self.enum_val == other.enum_val
+
+    def to_murphi(self):
+        return self.enum_val
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
         return self
@@ -493,6 +534,9 @@ class VarExpr(BaseExpr):
 
     def __eq__(self, other):
         return isinstance(other, VarExpr) and self.name == other.name and self.typ == other.typ
+
+    def to_murphi(self):
+        return self.name
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
         is_prime = kwargs.get('is_prime', True)
@@ -528,6 +572,9 @@ class FieldName(BaseExpr):
     def __eq__(self, other):
         return isinstance(other, FieldName) and self.v == other.v and self.field == other.field
 
+    def to_murphi(self):
+        return f'{self.v.to_murphi()}.{self.field}'
+
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
         is_prime = kwargs.get('is_prime', True)
         obligation = kwargs.get('obligation', False)
@@ -557,6 +604,9 @@ class ArrayIndex(BaseExpr):
     def __eq__(self, other):
         return isinstance(other, ArrayIndex) and self.v == other.v and self.idx == other.idx
 
+    def to_murphi(self):
+        return f'{self.v.to_murphi()}[{self.idx.to_murphi()}]'
+
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
         is_prime = kwargs.get('is_prime', True)
         obligation = kwargs.get('obligation', False)
@@ -583,13 +633,16 @@ class ForallExpr(BaseExpr):
         return 70
 
     def __str__(self):
-        return f'forall {self.var_decl} do\n{indent(str(self.expr), 2)}\nend'
+        return f'forall {self.var_decl} do\n{indent_str(str(self.expr), 2)}\nend'
 
     def __repr__(self):
         return f'ForallExpr({repr(self.var_decl)}, {repr(self.expr)})'
 
     def __eq__(self, other):
         return isinstance(other, ForallExpr) and self.var_decl == other.var_decl and self.expr == other.expr
+
+    def to_murphi(self):
+        return f'\nforall {self.var_decl.to_murphi()} do\n{indent_str(self.expr.to_murphi(), 4)}\nend\n'
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
         is_prime = kwargs.get('is_prime', True)
@@ -650,21 +703,21 @@ class OpExpr(BaseExpr):
 
         if self.expr1.priority() <= self.priority():
             if '\n' in s1:
-                s1 = f'({indent(s1, 2, first_line=1)})'
+                s1 = f'({indent_str(s1, 2, first_line=1)})'
             else:
                 s1 = f'({s1})'
         if self.expr2.priority() < self.priority():
             if '\n' in s2:
-                s2 = f'({indent(s2, 2, first_line=1)})'
+                s2 = f'({indent_str(s2, 2, first_line=1)})'
             else:
                 s2 = f'({s2})'
         if self.op in ('=', '+', '-', '*', '/', '<=', '>=', '>', '<', '%', '!=', '&', '|'):
             return f'{s1} {self.op} {s2}'
         elif self.op in '->':
             if isinstance(self.expr2, OpExpr) and self.expr2.op == '->':
-                return f'({s1}) -> ({indent(s2, 2)})'
+                return f'({s1}) -> ({indent_str(s2, 2)})'
             else:
-                return f'({s1}) -> {indent(s2, 2)}'
+                return f'({s1}) -> {indent_str(s2, 2)}'
         else:
             raise NotImplementedError
 
@@ -673,6 +726,9 @@ class OpExpr(BaseExpr):
 
     def __eq__(self, other):
         return isinstance(other, OpExpr) and self.op == other.op and self.expr1 == other.expr1 and self.expr2 == other.expr2
+
+    def to_murphi(self):
+        return f'({self.expr1.to_murphi()} {self.op} {self.expr2.to_murphi()})'
 
     def get_exec_str(self, expr1, expr2, op):
         if op == '=':
@@ -684,16 +740,16 @@ class OpExpr(BaseExpr):
             else:
                 exec_str = f'{expr1} == {expr2}'
         elif op == '->':
-            if self.expr1.loop_var:
-                exec_str = [f'if {expr1}:\n', f'{expr2}']
-            else:
-                exec_str = f'Implies({expr1}, {expr2})'
+            exec_str = f'Implies({expr1}, {expr2})'
         elif op == '&':
             exec_str = f'And({expr1}, {expr2})'
         elif op == '|':
             exec_str = f'Or({expr1}, {expr2})'
         else:
-            exec_str = f'{expr1} {op} {expr2}'
+            if self.expr1.loop_var and self.expr2.loop_var:
+                exec_str = f'IntVal({expr1}) {op} IntVal({expr2})'
+            else:
+                exec_str = f'{expr1} {op} {expr2}'
         return exec_str
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
@@ -735,6 +791,9 @@ class IntExpr(BaseExpr):
     def __repr__(self):
         return f'INT({self.expr})'
 
+    def to_murphi(self):
+        return str(self.expr)
+
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
         return self
 
@@ -760,6 +819,9 @@ class NegExpr(BaseExpr):
     def __eq__(self, other):
         return isinstance(other, NegExpr) and self.expr == other.expr
 
+    def to_murphi(self):
+        return f'!{self.expr.to_murphi()}'
+
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> BaseExpr:
         is_prime = kwargs.get('is_prime', True)
         obligation = kwargs.get('obligation', False)
@@ -781,6 +843,9 @@ class BaseCmd:
         # IfCmd: {if_cmd_used_var_collector_name}_{self.cnt}. _
         # Others: {var, var_prime}
         self.used_vars_collector: list[(str, str)] = []
+
+    def to_murphi(self):
+        pass
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> "BaseCmd":
         return self
@@ -814,13 +879,16 @@ class AssignCmd(BaseCmd):
         self.expr = expr
 
     def __str__(self):
-        return indent(f'{self.var} := {self.expr};\n', 0)
+        return indent_str(f'{self.var} := {self.expr};\n', 0)
 
     def __repr__(self):
         return f'AssignCmd({self.var}, {self.expr})'
 
     def __eq__(self, other):
         return isinstance(other, AssignCmd) and self.var == other.var and self.expr == other.expr
+
+    def to_murphi(self):
+        return f'{self.var.to_murphi()} := {self.expr.to_murphi()};'
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> "BaseCmd":
         is_prime = kwargs.get('is_prime', True)
@@ -855,7 +923,7 @@ class ForallCmd(BaseCmd):
 
     def __str__(self):
         res = f'for {self.var_decl} do\n'
-        res += ''.join(indent(str(cmd), 2) + '\n' for cmd in self.cmds)
+        res += ''.join(indent_str(str(cmd), 2) + '\n' for cmd in self.cmds)
         res += 'end;'
         return res
 
@@ -864,6 +932,12 @@ class ForallCmd(BaseCmd):
 
     def __eq__(self, other):
         return isinstance(other, ForallCmd) and self.var_decl == other.var_decl and self.cmds == other.cmds
+
+    def to_murphi(self):
+        res = f'for {self.var_decl} do\n'
+        res += '\n'.join(indent_str(cmd.to_murphi(), 4) for cmd in self.cmds)
+        res += '\nend;'
+        return res
 
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> "BaseCmd":
         is_prime = kwargs.get('is_prime', True)
@@ -910,13 +984,13 @@ class IfCmd(BaseCmd):
 
     def __str__(self):
         res = f'if ({self.if_branches[0][0]}) then\n'
-        res += ''.join(indent(str(cmd), 2) + '\n' for cmd in self.if_branches[0][1])
+        res += ''.join(indent_str(str(cmd), 2) + '\n' for cmd in self.if_branches[0][1])
         for expr, cmds in self.if_branches[1:]:
             res += f'elsif ({expr}) then\n'
-            res += ''.join(indent(str(cmd), 2) + '\n' for cmd in cmds)
+            res += ''.join(indent_str(str(cmd), 2) + '\n' for cmd in cmds)
         if self.else_branch:
             res += 'else\n'
-            res += ''.join(indent(str(cmd), 2) + '\n' for cmd in self.else_branch)
+            res += ''.join(indent_str(str(cmd), 2) + '\n' for cmd in self.else_branch)
         res += 'end;'
         return res
 
@@ -926,6 +1000,19 @@ class IfCmd(BaseCmd):
     def __eq__(self, other):
         return isinstance(other, IfCmd) and self.args == other.args
 
+    def to_murphi(self):
+        res = f'if ({self.if_branches[0][0]}) then\n'
+        res += '\n'.join(indent_str(cmd.to_murphi(), 4) for cmd in self.if_branches[0][1])
+        for expr, cmds in self.if_branches[1:]:
+            res += f'\nelsif ({expr}) then\n'
+            res += '\n'.join(indent_str(cmd.to_murphi(), 4) for cmd in cmds)
+        if self.else_branch:
+            res += '\nelse\n'
+            res += '\n'.join(indent_str(cmd.to_murphi(), 4) for cmd in self.else_branch)
+        res += '\nend;'
+        return res
+
+    # TODO separate if branches in each rule
     def elaborate(self, prot: "MurphiProtocol", bound_vars: dict[str, MurphiType], **kwargs) -> "BaseCmd":
         is_prime = kwargs.get('is_prime', True)
         if is_prime:
@@ -962,6 +1049,9 @@ class ProtDecl:
         self.is_invariant: bool = is_invariant
         self.exec_str: str = exec_str
 
+    def to_murphi(self, is_ruleset=False):
+        return ''
+
     def elaborate(self, prot, bound_vars, obligation=False):
         return self
 
@@ -979,13 +1069,23 @@ class StartState(ProtDecl):
 
     def __str__(self):
         res = f'startstate "{self.name}"\n'
-        res += ''.join(indent(str(cmd), 2) + '\n' for cmd in self.cmds)
+        res += ''.join(indent_str(str(cmd), 2) + '\n' for cmd in self.cmds)
         res += 'endstartstate;'
         return res
 
     def __repr__(self):
-        cmds_repr = ''.join(indent(str(cmd), 2) + '\n' for cmd in self.cmds)
+        cmds_repr = ''.join(indent_str(str(cmd), 2) + '\n' for cmd in self.cmds)
         return f'StartState({self.name}, {cmds_repr})'
+
+    def to_murphi(self, is_ruleset=False):
+        res = f'startstate'
+        if self.name != '__init__':
+            res += f' "{self.name}"\n'
+        if not is_ruleset:
+            res += 'begin\n'
+        res += '\n'.join(indent_str(cmd.to_murphi(), 4) for cmd in self.cmds)
+        res += '\nendstartstate;'
+        return res
 
     def elaborate(self, prot, bound_vars, obligation=False):
         self.cmds: list[BaseCmd] = [cmd.elaborate(prot, bound_vars, is_prime=False) for cmd in self.cmds]
@@ -1014,12 +1114,13 @@ class MurphiRule(ProtDecl):
             for rule_var in self.rule_vars:
                 self.rule_var_map[rule_var.name] = rule_var.typ
         self.name = self.name.replace('"', '')
+        self.if_cmds = []
 
     def __str__(self):
         res = f'rule "{self.name}"\n'
-        res += indent(str(self.cond), 2) + '\n'
+        res += indent_str(str(self.cond), 2) + '\n'
         res += '==>\nbegin\n'
-        res += ''.join(indent(str(cmd), 2) + '\n' for cmd in self.cmds)
+        res += ''.join(indent_str(str(cmd), 2) + '\n' for cmd in self.cmds)
         res += 'endrule;'
         return res
 
@@ -1029,6 +1130,13 @@ class MurphiRule(ProtDecl):
     def __eq__(self, other):
         return isinstance(other,
                           MurphiRule) and self.name == other.name and self.cond == other.cond and self.cmds == other.cmds
+
+    def to_murphi(self, is_ruleset=False):
+        res = f'rule "{self.name}"\n'
+        res += f'{self.cond.to_murphi()} ==> begin\n'
+        res += '\n'.join(indent_str(cmd.to_murphi(), 4) for cmd in self.cmds)
+        res += '\nendrule;'
+        return res
 
     def elaborate(self, prot, bound_vars, obligation=False):
         self.cond = self.cond.elaborate(prot, bound_vars, is_prime=False)
@@ -1041,8 +1149,9 @@ class MurphiRule(ProtDecl):
                 exec_str.append(cmd.exec_str)
                 exec_str.append(f'{rule_cmds_collector_name}_{self.name}.extend({for_cmd_collector_name}_{cmd.cnt})')
             elif isinstance(cmd, IfCmd):
+                self.if_cmds.append(cmd)
                 exec_str.append(cmd.exec_str)
-                exec_str.append(f'{rule_cmds_collector_name}_{self.name}.extend({if_cmd_collector_name}_{cmd.cnt})')
+                # exec_str.append(f'{rule_cmds_collector_name}_{self.name}.extend({if_cmd_collector_name}_{cmd.cnt})')
             else:
                 exec_str.append(f'{rule_cmds_collector_name}_{self.name}.append({cmd.exec_str})')
 
@@ -1050,11 +1159,15 @@ class MurphiRule(ProtDecl):
             if isinstance(cmd, ForallCmd):
                 exec_str.append(f'{rule_used_var_collector_name}_{self.name} |= {for_cmd_used_var_collector_name}_{cmd.cnt}')
             elif isinstance(cmd, IfCmd):
-                exec_str.append(f'{rule_used_var_collector_name}_{self.name} |= {if_cmd_used_var_collector_name}_{cmd.cnt}')
+                pass
+                # exec_str.append(f'{rule_used_var_collector_name}_{self.name} |= {if_cmd_used_var_collector_name}_{cmd.cnt}')
             else:
                 for used_var, used_prime in cmd.used_vars_collector:
                     exec_str.append(f'{rule_used_var_collector_name}_{self.name}.add(('
                                     f'{used_var}, {used_prime}))')
+
+        # for cmd in self.if_cmds:
+
 
         exec_str.append(f'__unused_vars_{self.name} = set(full_vars) - {rule_used_var_collector_name}_{self.name}')
         exec_str.append(f'for (var, var_) in __unused_vars_{self.name}:')
@@ -1074,7 +1187,7 @@ class MurphiInvariant(ProtDecl):
 
     def __str__(self):
         res = "invariant \"%s\"\n" % self.name
-        res += indent(str(self.inv), 2)
+        res += indent_str(str(self.inv), 2)
         res += ";\n"
         return res
 
@@ -1085,17 +1198,16 @@ class MurphiInvariant(ProtDecl):
         return isinstance(other, MurphiInvariant) and self.name == other.name and \
             self.inv == other.inv
 
+    def to_murphi(self, is_ruleset=False):
+        return f'invariant "{self.name}"\n\t{self.inv.to_murphi()};'
+
     def elaborate(self, prot, bound_vars, obligation=False):
         self.inv = self.inv.elaborate(prot, bound_vars, is_prime=False or obligation, obligation=obligation)
         if obligation:
             collector = f'{prot_decl_collector_name}_{self.name}_prime'
         else:
             collector = f'{prot_decl_collector_name}_{self.name}'
-        if isinstance(self.inv.exec_str, list) and len(self.inv.exec_str) == 2:
-            self.exec_str = (f'{self.inv.exec_str[0]}'
-                             f'    {collector}.append((\'{self.name}\', {self.inv.exec_str[1]}))')
-        else:
-            self.exec_str = f'{collector}.append((\'{self.name}\', {self.inv.exec_str}))'
+        self.exec_str = f'{collector}.append((\'{self.name}\', {self.inv.exec_str}))'
         return self
 
 
@@ -1120,13 +1232,20 @@ class MurphiRuleSet(ProtDecl):
     def __str__(self):
         decls = '; '.join(str(decl) for decl in self.var_decls)
         res = f'ruleset {decls} do\n'
-        res += '\n'.join(str(rule) for rule in self.rules)
+        res += indent_str(decls, 4)
         res += '\nendruleset;'
         return res
 
     def __repr__(self):
         rules = '\n'.join(repr(rule) for rule in self.rules)
         return f'MurphiRuleSet({self.var_decls}, {rules})'
+
+    def to_murphi(self, is_ruleset=False):
+        decls = '; '.join(decl.to_murphi() for decl in self.var_decls)
+        res = f'ruleset {decls} do\n'
+        res += '\n\n'.join(indent_str(rule.to_murphi(is_ruleset=True), 4) for rule in self.rules)
+        res += '\nendruleset;'
+        return res
 
     def elaborate(self, prot, bound_vars, obligation=False):
         self.rules = [rule.elaborate(prot, bound_vars | self.var_map, obligation) for rule in self.rules]
@@ -1139,18 +1258,18 @@ class MurphiRuleSet(ProtDecl):
             exec_str.append(f'{prot_decl_collector_name}_{rule.name} = []')
         for decl in self.var_decls:
             decl.elaborate(prot)
-            for_loop_str.append(indent(f'for {decl.name} in {decl.typ.exec_str}:', 4*loop_cnt))
+            for_loop_str.append(indent_str(f'for {decl.name} in {decl.typ.exec_str}:', 4 * loop_cnt))
             loop_cnt += 1
         for rule in self.rules:
             exec_str.append(f'\n# rule {rule.name} of ruleset {self.cnt}')
             exec_str.extend(for_loop_str)
-            exec_str.append(indent(rule.exec_str, 4*loop_cnt))
+            exec_str.append(indent_str(rule.exec_str, 4 * loop_cnt))
             if rule.is_startstate:
-                exec_str.append(indent(f'{ruleset_init_collector_name}_{self.cnt}.append(And(*{prot_decl_collector_name}_{rule.name}))', 4*loop_cnt))
+                exec_str.append(indent_str(f'{ruleset_init_collector_name}_{self.cnt}.append(And(*{prot_decl_collector_name}_{rule.name}))', 4 * loop_cnt))
             elif rule.is_invariant:
-                exec_str.append(indent(f'{atom_inv_collector_name}.extend({prot_decl_collector_name}_{rule.name})', 0))
+                exec_str.append(indent_str(f'{atom_inv_collector_name}.extend({prot_decl_collector_name}_{rule.name})', 0))
             else:
-                exec_str.append(indent(f'{atom_rule_collector_name}.extend({prot_decl_collector_name}_{rule.name})', 0))
+                exec_str.append(indent_str(f'{atom_rule_collector_name}.extend({prot_decl_collector_name}_{rule.name})', 0))
         self.exec_str = '\n'.join(exec_str)
         return self
 
@@ -1308,9 +1427,9 @@ class MurphiProtocol:
         self.export_name = list(self.rule_map.keys())
 
     def __str__(self):
-        consts_str = '\n\n'.join(indent(str(const), 2) + ';' for const in self.consts)
-        types_str = '\n\n'.join(indent(str(typ), 2) + ';' for typ in self.types)
-        vars_str = '\n\n'.join(indent(str(var), 2) + ';' for var in self.vars)
+        consts_str = '\n\n'.join(indent_str(str(const), 2) + ';' for const in self.consts)
+        types_str = '\n\n'.join(indent_str(str(typ), 2) + ';' for typ in self.types)
+        vars_str = '\n\n'.join(indent_str(str(var), 2) + ';' for var in self.vars)
         decls_str = '\n\n'.join(str(decl) for decl in self.decls)
         res = (f'const\n\n{consts_str}\n\n'
                f'type\n\n{types_str}\n\n'
@@ -1375,17 +1494,19 @@ class MurphiProtocol:
                     exec_str.append(f'{prot_decl_collector_name}_{rule.name}_prime = []')
                 for decl in inv.var_decls:
                     decl.elaborate(self, is_prime=True)
-                    for_loop_str.append(indent(f'for {decl.name} in {decl.typ.exec_str}:', 4 * loop_cnt))
+                    for_loop_str.append(indent_str(f'for {decl.name} in {decl.typ.exec_str}:', 4 * loop_cnt))
                     loop_cnt += 1
                 for rule in invs:
                     exec_str.append(f'\n# rule {rule.name} of ruleset {inv.cnt}')
                     exec_str.extend(for_loop_str)
-                    exec_str.append(indent(rule.exec_str, 4 * loop_cnt))
-                    exec_str.append(indent(f'{inv_prime_collector_name}.extend({prot_decl_collector_name}_{rule.name}_prime)', 0))
+                    exec_str.append(indent_str(rule.exec_str, 4 * loop_cnt))
+                    exec_str.append(indent_str(f'{inv_prime_collector_name}.extend({prot_decl_collector_name}_{rule.name}_prime)', 0))
         return '\n'.join(exec_str)
 
-    def to_z3(self, filename):
-        prot = filename.split('.')[0]
+    def to_z3(self, filename: str):
+        file = filename.split('/')
+        prot = file[-1].split('.')[0]
+        exec_file = '/'.join(file[:-1]) + '/' + prot + '.py'
 
         var_collector = ''
         for var_name, typ in self.var_map.items():
@@ -1433,7 +1554,7 @@ class MurphiProtocol:
                           f'{inv_exec}\n'
                           )
         # print(to_z3_exec_str)
-        with open(f'exec_str_{prot}.py', 'w') as f:
+        with open(exec_file, 'w') as f:
             f.write('from z3 import *\n\n\n')
             f.write('variables = []\n')
             f.write('primes = []\n\n')
@@ -1447,9 +1568,15 @@ class MurphiProtocol:
         post = global_vars['post']
         post_prime = global_vars['post_prime']
 
+        trans = [(name, simplify(cond), simplify(cmds), simplify(others)) for (name, cond, cmds, others) in trans]
+        post = [(name, simplify(inv)) for (name, inv) in post]
+        post = list(filter(lambda inv: not is_true(inv[1]), post))
+        post_prime = [(name, simplify(inv)) for (name, inv) in post_prime]
+        post_prime = list(filter(lambda inv: not is_true(inv[1]), post_prime))
+
         full_vars = global_vars['full_vars']
         var_constraints = global_vars['var_constraints']
-        with open(f'exec_str_{prot}.py', 'a') as f:
+        with open(exec_file, 'a') as f:
             set_option(max_depth=99999, max_lines=99999, max_args=99999)
             f.write('\'\'\'\n')
             f.write(f'variables = \n{variables}\n\n')
@@ -1463,12 +1590,26 @@ class MurphiProtocol:
 
 
 # trans:
-#   list[ rule: And(cond, assigns, others) |
-#         ruleset: list[And(cond, assigns, others)]
-#   ]
-#   [__prot_decl_name]
+#   list[(name, cond, cmds, others)]
+#   list[((name, cond, cmds, others), list[(if_branch_cond, if_branch_cmds, if_branch_others)])]
 # invariant:
-#   list[ inv: And(expr) |
-#         ruleset: list[And(expr)]
-#   ]
+#   list[(name, inv)]
 
+
+# const type var rules
+def to_murphi(prot: MurphiProtocol):
+    consts = ';\n'.join([indent_str(const.to_murphi(), 4) for const in prot.consts]) + ';'
+    types = ';\n'.join([indent_str(typ.to_murphi(), 4) for typ in prot.types]) + ';'
+    vars = ';\n'.join([indent_str(var.to_murphi(), 4) for var in prot.vars]) + ';'
+    decls = '\n\n'.join([decl.to_murphi() for decl in prot.decls if not decl.is_invariant])
+    return (f'const\n'
+            f'{consts}\n\n'
+            f'type\n'
+            f'{types}\n\n'
+            f'var\n'
+            f'{vars}\n\n'
+            f'{decls}\n\n')
+
+
+def inv_to_murphi(prot: MurphiProtocol, inv: MurphiInvariant):
+    return to_murphi(prot) + inv.to_murphi()

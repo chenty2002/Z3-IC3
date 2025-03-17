@@ -1,3 +1,5 @@
+from z3 import *
+
 # Protocol Level
 # list[
 #   Invariant: prot_decl_collector_name
@@ -27,7 +29,7 @@ rule_used_var_collector_name = '__rule_used_vars'
 obligation_collector_name = '__obligation'
 
 
-def indent(s, num_space, first_line=None, sep='\n'):
+def indent_str(s, num_space, first_line=None, sep='\n'):
     """
     Indent the given string by adding spaces to each line.
 
@@ -53,13 +55,33 @@ def indent(s, num_space, first_line=None, sep='\n'):
 def indent_list(s: list[str], num_space, first_line=None, start: int = 0, sep='\n'):
     assert first_line is None or start > 0
     first_lines = sep.join(s[:start])
-    return first_lines + sep + indent(sep.join(s[start:]), num_space)
+    return first_lines + sep + indent_str(sep.join(s[start:]), num_space)
 
 
 def tuple_to_list(t):
     if isinstance(t, tuple):
         return [tuple_to_list(item) for item in t]
     return t
+
+
+# And(*eqs) is a cex
+def z3_inv_to_murphi(eqs: tuple[AstRef]):
+    invs = []
+    for equation in eqs:
+        assert isinstance(equation, BoolRef) and equation.decl().name() == '='
+        assert len(equation.children()) == 2
+        lhs, rhs = equation.children()
+        if rhs.decl().kind() == Z3_OP_UNINTERPRETED or rhs.decl().kind() == Z3_OP_DT_ACCESSOR:
+            lhs, rhs = rhs, lhs
+        if len(lhs.children()) == 0:
+            invs.append(f'{lhs} = {rhs}')
+        else:
+            attr = lhs.decl()
+            var = lhs.children()[0]
+            invs.append(f'{var}.{attr} = {rhs}')
+    inv_str = ' & '.join(invs)
+    return (f'invariant "test"\n'
+            f'\t!({inv_str});\n')
 
 
 priority_map: dict[str, int] = {
